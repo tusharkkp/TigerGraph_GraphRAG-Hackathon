@@ -20,13 +20,16 @@ def _is_valid_tg_host(host: str) -> bool:
 class TestTigerGraphLiveSmoke:
     def test_connection_and_version(self):
         settings = get_tg_settings()
+        is_cloud = "tgcloud.io" in settings.tg_host
         conn = pyTigerGraph.TigerGraphConnection(
             host=settings.tg_host,
-            graphname=settings.tg_graphname or "Database-1",
+            graphname=settings.tg_graphname or "GraphRAG",
             username=settings.tg_username or "tigergraph",
             password=settings.tg_password,
+            tgCloud=is_cloud,
+            restppPort=443 if is_cloud else 9000,
+            gsPort=443 if is_cloud else 14240,
         )
-        # Savanna REST is on 443 with HTTPS
         if settings.tg_token:
             conn.apiToken = settings.tg_token
 

@@ -78,7 +78,7 @@ class TestLLMGateway:
         assert res.tokens_in == 150
         assert res.tokens_out == 45  # 30 + 15 thinking
         assert not res.cache_hit
-        assert res.model == "gemini-2.0-flash"
+        assert res.model == "gemini-2.5-flash"
         mock_client.models.generate_content.assert_called_once()
 
     def test_cache_hit_bypasses_second_api_call(self, gateway, mock_client):
