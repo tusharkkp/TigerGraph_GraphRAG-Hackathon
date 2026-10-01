@@ -1,0 +1,48 @@
+# Model configuration — all model names referenced from here, never hardcoded
+# Roles map to specific models; change here to switch globally.
+
+roles:
+  # Used by all three pipelines for final answer generation
+  answer:
+    model: "gemini-2.0-flash"
+    temperature: 0.0
+    max_output_tokens: 2048
+
+  # Used by the agentic orchestrator for planning
+  orchestrator:
+    model: "gemini-2.0-flash"
+    temperature: 0.0
+    max_output_tokens: 1024
+
+  # Used by specialised agents (entity linker, evidence evaluator, etc.)
+  agent:
+    model: "gemini-2.0-flash"
+    temperature: 0.0
+    max_output_tokens: 1024
+
+  # Used by the evaluation judge — ideally different from answer model
+  judge:
+    model: "gemini-2.0-flash"
+    temperature: 0.0
+    max_output_tokens: 512
+
+  # Used for entity/relation extraction during ingestion
+  extract:
+    model: "gemini-2.0-flash"
+    temperature: 0.0
+    max_output_tokens: 4096
+
+# Embedding model
+embedding:
+  model: "text-embedding-004"
+  dimensions: 768
+  task_type: "RETRIEVAL_DOCUMENT"
+  query_task_type: "RETRIEVAL_QUERY"
+
+# Rate limiting
+rate_limits:
+  requests_per_minute: 60
+  max_concurrent: 5
+  retry_max_attempts: 5
+  retry_base_delay: 1.0
+  retry_max_delay: 60.0

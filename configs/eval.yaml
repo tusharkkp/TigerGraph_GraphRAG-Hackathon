@@ -1,0 +1,32 @@
+# Evaluation configuration
+
+splits:
+  seed: 42
+  dev: 60
+  val: 20
+  test: 20
+
+judge:
+  blind_to_pipeline: true
+  temperature: 0.0
+  max_output_tokens: 512
+
+grounding:
+  quote_substring_check: true
+  sampled_claim_check: true
+  sample_size: 5
+
+benchmark:
+  default_pipelines: ["rag", "graphrag", "agentic"]
+  concurrent_questions: 3
+  save_per_question: true
+
+regression:
+  error_rate_max: 0.02           # 2%
+  agentic_accuracy_floor: -3     # agentic >= graphrag - 3 pts
+  agentic_token_ceiling: 6.0     # agentic mean tokens <= 6x graphrag
+  citation_validity_min: 0.95    # 95%
+
+bootstrap:
+  n_resamples: 10000
+  confidence_level: 0.95

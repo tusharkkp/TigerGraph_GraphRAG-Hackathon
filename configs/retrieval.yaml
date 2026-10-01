@@ -1,0 +1,23 @@
+# Retrieval configuration — shared by all pipelines for fair comparison
+
+chunking:
+  method: "character"
+  chunk_size: 500        # tokens (approximate)
+  overlap_size: 75       # tokens (~15% overlap)
+
+vector_search:
+  top_k: 10
+  similarity_threshold: 0.5
+
+graph_traversal:
+  max_hops: 2
+  max_neighbors_per_hop: 50
+  edge_types: null       # null = all types
+
+document_retrieval:
+  max_chunks_per_entity: 5
+  expand_neighbors: true
+
+community:
+  enabled: false         # enable after community detection runs
+  max_summaries: 5

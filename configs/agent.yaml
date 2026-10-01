@@ -1,0 +1,31 @@
+# Agent harness configuration
+
+budgets:
+  max_steps: 15
+  max_tokens: 50000      # total LLM tokens per question
+  max_wall_time_s: 120   # seconds
+
+stopping:
+  confidence_threshold: 0.8      # τ — evaluator confidence to stop
+  no_new_evidence_limit: 3       # N consecutive steps with no new evidence
+  eval_every: 3                  # run evaluator every N steps
+
+orchestrator:
+  compact_view_max_evidence: 10  # top-N evidence items in compact state
+  max_subquestions: 5
+
+tools:
+  entity_linker:
+    max_candidates: 5
+    disambiguation_threshold: 0.7
+  similarity_search:
+    top_k: 10
+  graph_traversal:
+    default_hops: 2
+    max_hops: 3
+  document_retriever:
+    max_chunks: 10
+  aggregator:
+    prefer_gsql: true            # use GSQL for counts/groupings when possible
+  evidence_evaluator:
+    temperature: 0.0

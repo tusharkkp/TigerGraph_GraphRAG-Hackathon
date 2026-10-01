@@ -1,0 +1,93 @@
+-- GraphRAG Schema for TigerGraph Savanna
+-- Adapted from tigergraph/graphrag with additions for our benchmark
+-- See ADR-001 in docs/DECISIONS.md
+
+-- =============================================================================
+-- Vertex Types
+-- =============================================================================
+
+-- Source documents from the corpus
+CREATE VERTEX Document (
+    PRIMARY_ID doc_id STRING,
+    title STRING,
+    url STRING,
+    wikidata_qid STRING,
+    approx_tokens INT,
+    epoch_added DATETIME
+) WITH STATS="OUTDEGREE_BY_EDGETYPE"
+
+-- Chunks of documents (the unit of retrieval)
+CREATE VERTEX DocumentChunk (
+    PRIMARY_ID chunk_id STRING,
+    chunk_index INT,
+    text STRING,
+    approx_tokens INT,
+    epoch_added DATETIME,
+    embedding LIST<DOUBLE>
+) WITH STATS="OUTDEGREE_BY_EDGETYPE"
+
+-- Entities extracted from the corpus
+CREATE VERTEX Entity (
+    PRIMARY_ID entity_id STRING,
+    name STRING,
+    entity_type STRING,
+    description STRING,
+    aliases LIST<STRING>,
+    epoch_added DATETIME,
+    embedding LIST<DOUBLE>
+) WITH STATS="OUTDEGREE_BY_EDGETYPE"
+
+-- Entity type categories
+CREATE VERTEX EntityType (
+    PRIMARY_ID type_id STRING,
+    name STRING,
+    description STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE"
+
+-- Relationship type categories
+CREATE VERTEX RelationshipType (
+    PRIMARY_ID rel_type_id STRING,
+    name STRING,
+    description STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE"
+
+-- Community (for global/summary questions — optional)
+CREATE VERTEX Community (
+    PRIMARY_ID community_id STRING,
+    level INT,
+    summary STRING,
+    member_count INT
+) WITH STATS="OUTDEGREE_BY_EDGETYPE"
+
+-- =============================================================================
+-- Edge Types
+-- =============================================================================
+
+-- Document contains chunks
+CREATE DIRECTED EDGE HAS_CHUNK (FROM Document, TO DocumentChunk)
+    WITH REVERSE_EDGE="CHUNK_OF"
+
+-- Chunk mentions entity
+CREATE DIRECTED EDGE MENTIONS (FROM DocumentChunk, TO Entity, weight DOUBLE DEFAULT 1.0)
+    WITH REVERSE_EDGE="MENTIONED_IN"
+
+-- Entity-to-entity relationships
+CREATE DIRECTED EDGE RELATES_TO (
+    FROM Entity, TO Entity,
+    relationship_type STRING,
+    description STRING,
+    weight DOUBLE DEFAULT 1.0,
+    source_chunk_id STRING
+) WITH REVERSE_EDGE="RELATED_FROM"
+
+-- Entity is of type
+CREATE DIRECTED EDGE IS_TYPE (FROM Entity, TO EntityType)
+
+-- Relationship categorisation
+CREATE DIRECTED EDGE HAS_REL_TYPE (FROM Entity, TO RelationshipType)
+
+-- Community membership
+CREATE DIRECTED EDGE IN_COMMUNITY (FROM Entity, TO Community)
+
+-- Sibling chunks (adjacent in document)
+CREATE UNDIRECTED EDGE SIBLING_OF (FROM DocumentChunk, TO DocumentChunk, weight DOUBLE DEFAULT 1.0)
