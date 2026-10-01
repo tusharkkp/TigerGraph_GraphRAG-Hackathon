@@ -11,14 +11,21 @@
 - [x] Scaffolded repo: all directories, configs, contracts, Makefile, pyproject.toml
 - [x] Created data/splits.json (dev 60 / val 20 / test 20, stratified by qtype, seed 42)
 - [x] Wrote docs: DECISIONS.md, PROGRESS.md, BLOCKERS.md, ARCHITECTURE.md
+- [x] Implemented `src/llm/cache.py` (thread-safe disk cache keyed by SHA-256)
+- [x] Implemented `src/llm/gateway.py` (Gemini gateway with exact token accounting, retries on 429/5xx, Pydantic structured output validation + single repair attempt, JSONL logging)
+- [x] Implemented `src/llm/embeddings.py` (document and query embedding service)
+- [x] Added unit tests for Cache and Gateway (42/42 total unit tests passing)
+- [x] Added integration smoke tests (`tests/integration/test_gemini_smoke.py`, `tests/integration/test_tigergraph_smoke.py`)
 
 ### In Progress
-- [ ] Phase 0 gate: smoke tests pending (need GEMINI_API_KEY + correct TG_HOST)
+- [ ] Phase 0 gate closure: live smoke tests pending credentials (`GEMINI_API_KEY` and REST endpoint `TG_HOST`)
+- [ ] Phase 1 TigerGraph client wrapper (`src/graph/client.py`) and schema installer
 
 ### Next
-- [ ] Get credentials from owner (Gemini key, TG REST endpoint, TG username)
-- [ ] Run Savanna + Gemini smoke tests
-- [ ] Begin Phase 1: LLM Gateway → TG Client → Schema → Ingestion
+- [ ] Receive credentials from owner (Gemini API key, Savanna REST endpoint, TG username)
+- [ ] Execute `make test-integration` for live smoke verification
+- [ ] Build `src/graph/client.py` and `src/graph/install.py`
+- [ ] Implement ingestion pipeline (`src/ingestion/chunking.py`, `src/ingestion/extraction.py`, `src/ingestion/loader.py`)
 
 ### Numbers
 - Corpus: 2,951 docs, ~5.5M tokens, ~22 MB
