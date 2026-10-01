@@ -32,5 +32,5 @@ class TestTigerGraphLiveSmoke:
             apiToken=settings.tg_token,
         )
 
-        ver = conn.getVer()
-        assert ver, "Failed to retrieve TigerGraph version from instance"
+        schema = conn.getSchema()
+        assert schema, "Failed to retrieve TigerGraph schema from live instance"

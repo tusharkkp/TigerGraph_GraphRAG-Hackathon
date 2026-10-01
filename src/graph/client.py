@@ -77,9 +77,13 @@ class TigerGraphClient:
                 logger.info("TigerGraph token may have expired. Attempting refresh...")
                 self._token_refreshed = True
                 try:
-                    secret = self.conn.createSecret()
-                    token, _ = self.conn.getToken(secret)
+                    if self.settings.tg_secret:
+                        token, _ = self.conn.getToken(self.settings.tg_secret)
+                    else:
+                        secret = self.conn.createSecret()
+                        token, _ = self.conn.getToken(secret)
                     self.conn.apiToken = token
+                    self._token_refreshed = False
                     return fn(*args, **kwargs)
                 except Exception as refresh_err:
                     logger.error("Token refresh failed: %s", refresh_err)

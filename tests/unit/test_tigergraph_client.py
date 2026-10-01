@@ -2,6 +2,7 @@
 
 from unittest.mock import MagicMock
 
+from src.config import TigerGraphSettings
 from src.graph.client import TigerGraphClient
 
 
@@ -87,9 +88,8 @@ class TestTigerGraphClient:
         assert res == [{"result": "ok"}]
         mock_conn.runInstalledQuery.assert_called_once_with("test_query", params={"p": 10})
 
-    def test_auto_reauth_on_401(self):
+    def test_auto_reauth_on_401_fallback_create_secret(self):
         mock_conn = MagicMock()
-        # First call fails with 401 unauthorized, second succeeds after refresh
         mock_conn.getVertexCount.side_effect = [
             Exception("401 Unauthorized token expired"),
             100,
@@ -97,10 +97,29 @@ class TestTigerGraphClient:
         mock_conn.createSecret.return_value = "new_secret"
         mock_conn.getToken.return_value = ("new_token", 0)
 
-        client = TigerGraphClient(conn=mock_conn)
+        # Settings without tg_secret should fallback to conn.createSecret()
+        settings = TigerGraphSettings(tg_host="https://mock.tigergraph.com", tg_secret="")
+        client = TigerGraphClient(conn=mock_conn, settings=settings)
         count = client.get_vertex_count("Document")
 
         assert count == 100
         mock_conn.createSecret.assert_called_once()
         mock_conn.getToken.assert_called_once_with("new_secret")
         assert mock_conn.apiToken == "new_token"
+
+    def test_auto_reauth_with_configured_secret(self):
+        mock_conn = MagicMock()
+        mock_conn.getVertexCount.side_effect = [
+            Exception("401 Unauthorized token expired"),
+            100,
+        ]
+        mock_conn.getToken.return_value = ("refreshed_token", 0)
+
+        settings = TigerGraphSettings(tg_host="https://mock.tigergraph.com", tg_secret="configured_secret")
+        client = TigerGraphClient(conn=mock_conn, settings=settings)
+        count = client.get_vertex_count("Document")
+
+        assert count == 100
+        mock_conn.createSecret.assert_not_called()
+        mock_conn.getToken.assert_called_once_with("configured_secret")
+        assert mock_conn.apiToken == "refreshed_token"
