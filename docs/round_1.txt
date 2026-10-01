@@ -1,0 +1,93 @@
+this file has questions for round 1
+
+Pipeline Configuration
+LLM Model Used
+*
+Hint: Provide the LLM model and version used. Must be the same model across all 3 pipelines.
+
+Vector DB Used for RAG Pipeline 
+*
+Hint: Provide the vector DB name and version used for your RAG pipeline.
+
+Graph Backend
+*
+Hint: TigerGraph Savanna or Community Edition?
+
+Accuracy % (RAG)
+*
+saded
+Accuracy % (GraphRAG)
+*
+
+Accuracy % (Agentic GraphRAG)
+*
+
+Tokens per query (RAG)
+*
+
+Tokens per query (GraphRAG)
+*
+
+Tokens per query (Agentic GraphRAG)
+*
+
+Latency (RAG)
+*
+Hint: Average response time in seconds
+
+Latency (GraphRAG)
+*
+Hint: Average response time in seconds
+
+Latency (Agentic GraphRAG)
+*
+Hint: Average response time in seconds
+
+Avg retrieval/reasoning steps per question
+*
+
+Retrieval methods used
+*
+Hint: List all methods - e.g. entity linking, graph traversal, similarity search, document retrieval, aggregation
+
+Avg tokens per question (Agentic GraphRAG)
+*
+
+Avg time per question (Agentic GraphRAG)
+*
+Hint: In seconds
+
+Public GitHub Repo Link  
+*
+Hint: Must include source code, setup instructions, architecture diagram, and dependencies. Also add a separate file (JSON/CSV) in your repo with the 50 hidden questions — answers generated, tokens used, and agentic trace — so we can test and evaluate it directly.
+Live Deployed Link
+Demo Video Link
+*
+Blog Link
+*
+Social Media Post Link
+*
+Results on 50 Hidden Questions
+*
+Hint: Upload or link your system's raw outputs on the 50 hidden questions — answers, tokens used, and agentic trace.
+ad
+Has your entire team joined the TigerGraph Discord?
+
+https://discord.com/invite/eKWm3mbkw2 
+*
+Yes, the whole team has joined ✅
+Partially, some members joined
+Not yet, will join shortly
+Did you download Community Edition from https://dl.tigergraph.com/ ? Even if you used Savanna for your build, please download CE and share your honest experience: installation, setup, first impressions, friction points. We use this feedback to improve the product.
+*
+da
+TigerGraph Savanna (https://tgcloud.io/) — Team Signup Emails 
+Every team member must sign up at tgcloud.io. Paste the exact emails used for signup, one per line.
+*
+da
+Any feedback or thoughts on DevHub? How has your experience been so far? 
+
+*
+ad
+What fixes have you made in your code based on the feedback? 
+*

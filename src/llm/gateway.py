@@ -19,6 +19,7 @@ import datetime
 import json
 import logging
 import random
+import re
 import threading
 import time
 from typing import Any, TypeVar
@@ -174,6 +175,10 @@ class LLMGateway:
                     self.retry_max_delay,
                     self.retry_base_delay * (2 ** attempt) + random.uniform(0.0, 0.05),
                 )
+                match = re.search(r"retry in ([\d\.]+)s", str(e), re.IGNORECASE) or re.search(r"['\"]retryDelay['\"]:\s*['\"](\d+)s", str(e))
+                if match:
+                    delay = min(self.retry_max_delay + 30.0, float(match.group(1)) + 1.0)
+
                 logger.warning(
                     "LLM call failed (attempt %d/%d): %s. Retrying in %.2fs...",
                     attempt + 1,

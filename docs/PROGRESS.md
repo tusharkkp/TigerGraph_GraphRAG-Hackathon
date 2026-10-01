@@ -21,22 +21,31 @@
 - [x] Built `src/ingestion/chunker.py` (`TextChunker` with sentence boundary preservation and sibling links)
 - [x] Built `src/ingestion/extractor.py` (`EntityRelationshipExtractor` with Olympic domain ontology and canonical IDs)
 - [x] Built `src/ingestion/pipeline.py` (resumable ingestion pipeline with checkpoints and stats reporting)
-- [x] 53/53 unit tests passing offline in ~1.5s (`tests/unit/`)
+- [x] Acquired valid TigerGraph JWT token and verified live Savanna connectivity (`tests/integration/test_tigergraph_smoke.py`)
+- [x] Fixed GSQL syntax in `graph/schema.gsql` (wrapped in `SCHEMA_CHANGE JOB`, corrected `--` to `//`)
+- [x] Deployed and verified GraphRAG schema on TigerGraph Savanna (`Document`, `DocumentChunk`, `Entity`, `EntityType`, `RelationshipType`, `Community`, and 7 edge types)
+- [x] Verified test ingestion on small slice (`py -3.12 -m src.ingestion.pipeline --limit 5`): 5 docs, 16 chunks, 121 entities, 16 HAS_CHUNK, 245 MENTIONS, 87 RELATES_TO, 11 SIBLING_OF live in Savanna
+- [x] Reviewed `docs/round_1.txt` and verified JSON format for hidden-50 submission
+- [x] 56/56 tests passing (53 unit tests + 3 live integration tests)
 
 ### In Progress
-- [ ] Phase 0 TigerGraph Savanna live gate: pending `TG_TOKEN` from user in `.env`
-- [ ] Schema deployment to Savanna via `python -m src.graph.install`
+- [ ] Phase 2: Baselines & Evaluation
+  - Implement P1 RAG pipeline (`src/pipelines/rag.py`)
+  - Implement P2 GraphRAG pipeline (`src/pipelines/graphrag.py`)
+  - Install core GSQL retrieval queries in `graph/queries/`
+  - Implement LLM judge (`src/eval/judge.py`) & metrics (`src/eval/metrics.py`)
+  - Implement evaluation runner (`src/eval/runner.py`)
 
 ### Next
-- [ ] Run `make test-integration` once user adds `TG_TOKEN` to `.env`
-- [ ] Deploy schema to Savanna (`python -m src.graph.install`)
-- [ ] Run test ingestion on small slice (`python -m src.ingestion.pipeline --limit 5`)
-- [ ] Begin Phase 2: RAG and GraphRAG baseline pipelines
+- [ ] Run baseline evaluation on dev/val splits
+- [ ] Calibrate LLM judge and spot-check 10-20 examples
+- [ ] Phase 3: Agentic GraphRAG core harness
 
 ### Numbers
 - Corpus: 2,951 docs, ~5.5M tokens, ~22 MB
 - Questions: 100 public (5 types), 50 hidden
-- Estimated ingestion LLM calls: ~8,853 (entity extraction) + ~13,853 (embeddings)
+- Live Graph State: 5 Document, 16 DocumentChunk, 121 Entity, 16 HAS_CHUNK, 245 MENTIONS, 87 RELATES_TO, 11 SIBLING_OF
+- Test suite: 56 passed (53 unit + 3 integration)
 
 ### Blockers
-See [BLOCKERS.md](BLOCKERS.md)
+None. Live Savanna and Gemini endpoints verified.

@@ -1,0 +1,81 @@
+{
+  "docs_processed": 5,
+  "chunks_created": 16,
+  "entities_extracted": 220,
+  "relations_extracted": 57,
+  "tokens_in": 0,
+  "tokens_out": 0,
+  "embeddings_generated": 16,
+  "sample_relations": [
+    {
+      "source": "Men's canoe sprint K-2 1,000 metres",
+      "relation": "PART_OF",
+      "target": "2012 Summer Olympics",
+      "quote": "The men's canoe sprint K-2 1,000 metres competition at the 2012 Olympic Games in London took place between 6 and 8 August at Eton Dorney.",
+      "doc_id": "Q303623"
+    },
+    {
+      "source": "Men's canoe sprint K-2 1,000 metres",
+      "relation": "HELD_AT",
+      "target": "Eton Dorney",
+      "quote": "The men's canoe sprint K-2 1,000 metres competition at the 2012 Olympic Games in London took place between 6 and 8 August at Eton Dorney.",
+      "doc_id": "Q303623"
+    },
+    {
+      "source": "Rudolf Dombi",
+      "relation": "REPRESENTS",
+      "target": "Hungary",
+      "quote": "Rudolf Dombi and Roland K\u00f6k\u00e9ny from Hungary won the gold medal.",
+      "doc_id": "Q303623"
+    },
+    {
+      "source": "Roland K\u00f6k\u00e9ny",
+      "relation": "REPRESENTS",
+      "target": "Hungary",
+      "quote": "Rudolf Dombi and Roland K\u00f6k\u00e9ny from Hungary won the gold medal.",
+      "doc_id": "Q303623"
+    },
+    {
+      "source": "Fernando Pimenta",
+      "relation": "REPRESENTS",
+      "target": "Portugal",
+      "quote": "Portugal's Fernando Pimenta and Emanuel Silva won silver",
+      "doc_id": "Q303623"
+    },
+    {
+      "source": "Emanuel Silva",
+      "relation": "REPRESENTS",
+      "target": "Portugal",
+      "quote": "Portugal's Fernando Pimenta and Emanuel Silva won silver",
+      "doc_id": "Q303623"
+    },
+    {
+      "source": "Martin Hollstein",
+      "relation": "REPRESENTS",
+      "target": "Germany",
+      "quote": "Martin Hollstein and Andreas Ihle from Germany took bronze.",
+      "doc_id": "Q303623"
+    },
+    {
+      "source": "Andreas Ihle",
+      "relation": "REPRESENTS",
+      "target": "Germany",
+      "quote": "Martin Hollstein and Andreas Ihle from Germany took bronze.",
+      "doc_id": "Q303623"
+    },
+    {
+      "source": "Martin Hollstein",
+      "relation": "COMPETED_AGAINST",
+      "target": "Andreas Ihle",
+      "quote": "Martin HollsteinAndreas Ihle",
+      "doc_id": "Q303623"
+    },
+    {
+      "source": "Peter Gelle",
+      "relation": "COMPETED_AGAINST",
+      "target": "Erik Vl\u010dek",
+      "quote": "Peter GelleErik Vl\u010dek",
+      "doc_id": "Q303623"
+    }
+  ]
+}

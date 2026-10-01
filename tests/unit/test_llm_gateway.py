@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from pydantic import BaseModel, Field
+from src.config import get_model_for_role
 from src.contracts import CallTag
 from src.llm.cache import DiskCache
 from src.llm.embeddings import EmbeddingsService
@@ -78,7 +79,7 @@ class TestLLMGateway:
         assert res.tokens_in == 150
         assert res.tokens_out == 45  # 30 + 15 thinking
         assert not res.cache_hit
-        assert res.model == "gemini-2.5-flash"
+        assert res.model == get_model_for_role("answer")["model"]
         mock_client.models.generate_content.assert_called_once()
 
     def test_cache_hit_bypasses_second_api_call(self, gateway, mock_client):

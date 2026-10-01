@@ -35,10 +35,20 @@ def install_schema(client: TigerGraphClient, dry_run: bool = False) -> None:
         return
 
     graphname = client.settings.tg_graphname or "GraphRAG"
+    existing_vertices = client.conn.getVertexTypes(force=True)
+    if "Document" in existing_vertices and "DocumentChunk" in existing_vertices and "Entity" in existing_vertices:
+        logger.info("Core vertex types already exist in %s: %s. Schema is up to date.", graphname, existing_vertices)
+        return
+
     wrapped_ddl = f"USE GRAPH {graphname}\n{gsql}"
     try:
         res = client.conn.gsql(wrapped_ddl)
-        logger.info("Schema deployment result: %s", res)
+        logger.info("Schema deployment result:\n%s", res)
+        # Verify deployed types
+        updated_vertices = client.conn.getVertexTypes(force=True)
+        updated_edges = client.conn.getEdgeTypes(force=True)
+        logger.info("Verified deployed vertices: %s", updated_vertices)
+        logger.info("Verified deployed edges: %s", updated_edges)
     except Exception as e:
         logger.error("Schema deployment failed: %s", e)
         raise
