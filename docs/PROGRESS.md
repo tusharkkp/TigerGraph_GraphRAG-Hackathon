@@ -14,18 +14,24 @@
 - [x] Implemented `src/llm/cache.py` (thread-safe disk cache keyed by SHA-256)
 - [x] Implemented `src/llm/gateway.py` (Gemini gateway with exact token accounting, retries on 429/5xx, Pydantic structured output validation + single repair attempt, JSONL logging)
 - [x] Implemented `src/llm/embeddings.py` (document and query embedding service)
-- [x] Added unit tests for Cache and Gateway (42/42 total unit tests passing)
-- [x] Added integration smoke tests (`tests/integration/test_gemini_smoke.py`, `tests/integration/test_tigergraph_smoke.py`)
+- [x] Probed live Gemini API: updated `configs/models.yaml` to `gemini-2.5-flash`, `gemini-2.5-pro`, `gemini-embedding-001` (768-dim)
+- [x] Passed live Gemini integration smoke tests (`tests/integration/test_gemini_smoke.py`)
+- [x] Built `src/graph/client.py` (`TigerGraphClient` with token re-auth, batch upserts, query execution)
+- [x] Built `src/graph/install.py` (schema and GSQL query deployment)
+- [x] Built `src/ingestion/chunker.py` (`TextChunker` with sentence boundary preservation and sibling links)
+- [x] Built `src/ingestion/extractor.py` (`EntityRelationshipExtractor` with Olympic domain ontology and canonical IDs)
+- [x] Built `src/ingestion/pipeline.py` (resumable ingestion pipeline with checkpoints and stats reporting)
+- [x] 53/53 unit tests passing offline in ~1.5s (`tests/unit/`)
 
 ### In Progress
-- [ ] Phase 0 gate closure: live smoke tests pending credentials (`GEMINI_API_KEY` and REST endpoint `TG_HOST`)
-- [ ] Phase 1 TigerGraph client wrapper (`src/graph/client.py`) and schema installer
+- [ ] Phase 0 TigerGraph Savanna live gate: pending `TG_TOKEN` from user in `.env`
+- [ ] Schema deployment to Savanna via `python -m src.graph.install`
 
 ### Next
-- [ ] Receive credentials from owner (Gemini API key, Savanna REST endpoint, TG username)
-- [ ] Execute `make test-integration` for live smoke verification
-- [ ] Build `src/graph/client.py` and `src/graph/install.py`
-- [ ] Implement ingestion pipeline (`src/ingestion/chunking.py`, `src/ingestion/extraction.py`, `src/ingestion/loader.py`)
+- [ ] Run `make test-integration` once user adds `TG_TOKEN` to `.env`
+- [ ] Deploy schema to Savanna (`python -m src.graph.install`)
+- [ ] Run test ingestion on small slice (`python -m src.ingestion.pipeline --limit 5`)
+- [ ] Begin Phase 2: RAG and GraphRAG baseline pipelines
 
 ### Numbers
 - Corpus: 2,951 docs, ~5.5M tokens, ~22 MB
