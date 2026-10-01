@@ -53,24 +53,19 @@ class TigerGraphClient:
             tgCloud=is_cloud,
             restppPort=443 if is_cloud else 9000,
             gsPort=443 if is_cloud else 14240,
+            apiToken=self.settings.tg_token,
         )
 
-        # Apply token / secret authentication
-        if self.settings.tg_token:
-            self._conn.apiToken = self.settings.tg_token
-        elif self.settings.tg_secret:
+        if not self.settings.tg_token and (self.settings.tg_secret or self.settings.tg_password):
+            secret = self.settings.tg_secret or self.settings.tg_password
             try:
-                token, _ = self._conn.getToken(self.settings.tg_secret)
-                self._conn.apiToken = token
+                import requests
+                clean_host = host.replace("https://", "").replace("http://", "").strip("/")
+                resp = requests.post(f"https://{clean_host}/gsql/v1/tokens", json={"secret": secret}, verify=False, timeout=10)
+                if resp.status_code == 200 and not resp.json().get("error"):
+                    self._conn.apiToken = resp.json()["token"]
             except Exception as e:
-                logger.warning("Failed to get token with TG_SECRET: %s", e)
-        elif self.settings.tg_password:
-            try:
-                secret = self._conn.createSecret()
-                token, _ = self._conn.getToken(secret)
-                self._conn.apiToken = token
-            except Exception as e:
-                logger.debug("Failed auto createSecret/getToken with password: %s", e)
+                logger.warning("Failed to request token from /gsql/v1/tokens: %s", e)
 
     def _with_reauth(self, fn: Any, *args: Any, **kwargs: Any) -> Any:
         """Execute a function with automatic token refresh on 401 / expired token."""

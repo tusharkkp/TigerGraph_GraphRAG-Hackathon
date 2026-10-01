@@ -29,9 +29,8 @@ class TestTigerGraphLiveSmoke:
             tgCloud=is_cloud,
             restppPort=443 if is_cloud else 9000,
             gsPort=443 if is_cloud else 14240,
+            apiToken=settings.tg_token,
         )
-        if settings.tg_token:
-            conn.apiToken = settings.tg_token
 
         ver = conn.getVer()
         assert ver, "Failed to retrieve TigerGraph version from instance"
