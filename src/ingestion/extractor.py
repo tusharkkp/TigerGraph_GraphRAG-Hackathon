@@ -90,6 +90,30 @@ class ExtractionResult(BaseModel):
     relations: list[ExtractedRelation] = Field(default_factory=list)
 
 
+class ChunkExtraction:
+    """Structured extraction output from a single chunk including token accounting."""
+
+    def __init__(
+        self,
+        result: ExtractionResult,
+        tokens_in: int = 0,
+        tokens_out: int = 0,
+    ) -> None:
+        self.result = result
+        self.entities = result.entities
+        self.relations = result.relations
+        self.tokens_in = tokens_in
+        self.tokens_out = tokens_out
+
+    def __iter__(self):
+        yield self.result
+        yield self.tokens_in
+        yield self.tokens_out
+
+    def __getitem__(self, item: int) -> Any:
+        return [self.result, self.tokens_in, self.tokens_out][item]
+
+
 EXTRACTION_PROMPT_TEMPLATE = """You are a knowledge graph extractor for an Olympic Games knowledge base.
 Analyze the following document chunk and extract key entities and factual relationships.
 
@@ -126,11 +150,11 @@ class EntityRelationshipExtractor:
     def __init__(self, gateway: LLMGateway) -> None:
         self.gateway = gateway
 
-    def extract_from_chunk(self, chunk: dict[str, Any]) -> ExtractionResult:
+    def extract_from_chunk(self, chunk: dict[str, Any]) -> ChunkExtraction:
         """Extract entities and relations for a single chunk."""
         chunk_text = chunk.get("text", "")
         if not chunk_text.strip():
-            return ExtractionResult()
+            return ChunkExtraction(ExtractionResult(), tokens_in=0, tokens_out=0)
 
         prompt = EXTRACTION_PROMPT_TEMPLATE.format(chunk_text=chunk_text)
         tag = CallTag(
@@ -146,14 +170,13 @@ class EntityRelationshipExtractor:
             tag=tag,
         )
 
-        if isinstance(res.parsed, ExtractionResult):
-            return res.parsed
-        return ExtractionResult()
+        parsed = res.parsed if isinstance(res.parsed, ExtractionResult) else ExtractionResult()
+        return ChunkExtraction(parsed, tokens_in=res.tokens_in, tokens_out=res.tokens_out)
 
     @staticmethod
     def build_graph_elements(
         chunk: dict[str, Any],
-        extraction: ExtractionResult,
+        extraction: ExtractionResult | ChunkExtraction,
     ) -> dict[str, Any]:
         """
         Convert ExtractionResult into vertices and edges ready for TigerGraph upsert.

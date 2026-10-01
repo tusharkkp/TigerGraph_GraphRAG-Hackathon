@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 
 from src.ingestion.chunker import TextChunker
 from src.ingestion.extractor import (
+    ChunkExtraction,
     EntityRelationshipExtractor,
     ExtractedEntity,
     ExtractedRelation,
@@ -120,3 +121,21 @@ class TestIngestionPipeline:
 
         loaded = pipeline.load_checkpoint()
         assert loaded == {"doc1", "doc2"}
+
+    def test_chunk_extraction_tokens_and_unpacking(self):
+        extraction = ExtractionResult(
+            entities=[ExtractedEntity(name="Paris", entity_type="Venue")],
+            relations=[],
+        )
+        chunk_ext = ChunkExtraction(extraction, tokens_in=150, tokens_out=45)
+
+        assert chunk_ext.tokens_in == 150
+        assert chunk_ext.tokens_out == 45
+        assert len(chunk_ext.entities) == 1
+        assert chunk_ext.entities[0].name == "Paris"
+
+        # Unpacking support
+        res, t_in, t_out = chunk_ext
+        assert res == extraction
+        assert t_in == 150
+        assert t_out == 45

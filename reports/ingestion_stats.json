@@ -1,81 +1,81 @@
 {
-  "docs_processed": 5,
-  "chunks_created": 16,
-  "entities_extracted": 220,
-  "relations_extracted": 57,
-  "tokens_in": 0,
-  "tokens_out": 0,
-  "embeddings_generated": 16,
+  "docs_processed": 10,
+  "chunks_created": 32,
+  "entities_extracted": 611,
+  "relations_extracted": 157,
+  "tokens_in": 37201,
+  "tokens_out": 30027,
+  "embeddings_generated": 32,
   "sample_relations": [
     {
-      "source": "Men's canoe sprint K-2 1,000 metres",
+      "source": "Men's 400 metres hurdles",
       "relation": "PART_OF",
-      "target": "2012 Summer Olympics",
-      "quote": "The men's canoe sprint K-2 1,000 metres competition at the 2012 Olympic Games in London took place between 6 and 8 August at Eton Dorney.",
-      "doc_id": "Q303623"
+      "target": "2004 Summer Olympics",
+      "quote": "The men's 400 metres hurdles at the 2004 Summer Olympics as part of the athletics program were held at the Athens Olympic Stadium",
+      "doc_id": "Q1433269"
     },
     {
-      "source": "Men's canoe sprint K-2 1,000 metres",
+      "source": "Men's 400 metres hurdles",
       "relation": "HELD_AT",
-      "target": "Eton Dorney",
-      "quote": "The men's canoe sprint K-2 1,000 metres competition at the 2012 Olympic Games in London took place between 6 and 8 August at Eton Dorney.",
-      "doc_id": "Q303623"
+      "target": "Athens Olympic Stadium",
+      "quote": "The men's 400 metres hurdles at the 2004 Summer Olympics as part of the athletics program were held at the Athens Olympic Stadium",
+      "doc_id": "Q1433269"
     },
     {
-      "source": "Rudolf Dombi",
+      "source": "F\u00e9lix S\u00e1nchez",
       "relation": "REPRESENTS",
-      "target": "Hungary",
-      "quote": "Rudolf Dombi and Roland K\u00f6k\u00e9ny from Hungary won the gold medal.",
-      "doc_id": "Q303623"
+      "target": "Dominican Republic",
+      "quote": "The event was won by F\u00e9lix S\u00e1nchez of the Dominican Republic",
+      "doc_id": "Q1433269"
     },
     {
-      "source": "Roland K\u00f6k\u00e9ny",
+      "source": "Danny McFarlane",
       "relation": "REPRESENTS",
-      "target": "Hungary",
-      "quote": "Rudolf Dombi and Roland K\u00f6k\u00e9ny from Hungary won the gold medal.",
-      "doc_id": "Q303623"
+      "target": "Jamaica",
+      "quote": "Silver went to Danny McFarlane of Jamaica",
+      "doc_id": "Q1433269"
     },
     {
-      "source": "Fernando Pimenta",
+      "source": "Naman Ke\u00efta",
       "relation": "REPRESENTS",
-      "target": "Portugal",
-      "quote": "Portugal's Fernando Pimenta and Emanuel Silva won silver",
-      "doc_id": "Q303623"
+      "target": "France",
+      "quote": "Naman Ke\u00efta's bronze was France's first medal in the event",
+      "doc_id": "Q1433269"
     },
     {
-      "source": "Emanuel Silva",
+      "source": "Angelo Taylor",
       "relation": "REPRESENTS",
-      "target": "Portugal",
-      "quote": "Portugal's Fernando Pimenta and Emanuel Silva won silver",
-      "doc_id": "Q303623"
+      "target": "United States",
+      "quote": "gold medalist Angelo Taylor of the United States",
+      "doc_id": "Q1433269"
     },
     {
-      "source": "Martin Hollstein",
+      "source": "Angelo Taylor",
       "relation": "REPRESENTS",
-      "target": "Germany",
-      "quote": "Martin Hollstein and Andreas Ihle from Germany took bronze.",
-      "doc_id": "Q303623"
+      "target": "United States",
+      "quote": "gold medalist Angelo Taylor of the United States",
+      "doc_id": "Q1433269"
     },
     {
-      "source": "Andreas Ihle",
+      "source": "Hadi Souan Somayli",
       "relation": "REPRESENTS",
-      "target": "Germany",
-      "quote": "Martin Hollstein and Andreas Ihle from Germany took bronze.",
-      "doc_id": "Q303623"
+      "target": "Saudi Arabia",
+      "quote": "silver medalist Hadi Souan Somayli of Saudi Arabia",
+      "doc_id": "Q1433269"
     },
     {
-      "source": "Martin Hollstein",
-      "relation": "COMPETED_AGAINST",
-      "target": "Andreas Ihle",
-      "quote": "Martin HollsteinAndreas Ihle",
-      "doc_id": "Q303623"
+      "source": "Llewellyn Herbert",
+      "relation": "REPRESENTS",
+      "target": "South Africa",
+      "quote": "bronze medalist Llewellyn Herbert of South Africa",
+      "doc_id": "Q1433269"
     },
     {
-      "source": "Peter Gelle",
-      "relation": "COMPETED_AGAINST",
-      "target": "Erik Vl\u010dek",
-      "quote": "Peter GelleErik Vl\u010dek",
-      "doc_id": "Q303623"
+      "source": "F\u00e9lix S\u00e1nchez",
+      "relation": "REPRESENTS",
+      "target": "Dominican Republic",
+      "quote": "Dominican Republic's F\u00e9lix S\u00e1nchez",
+      "doc_id": "Q1433269"
     }
   ]
 }

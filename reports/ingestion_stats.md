@@ -1,24 +1,27 @@
 # Ingestion Statistics Report
 
-**Generated:** 2026-10-01T15:33:47.140302+00:00
+**Generated:** 2026-10-01T18:27:08.380655+00:00
 
 ## Summary
-- **Documents Processed:** 5
-- **Chunks Created:** 16
-- **Embeddings Generated:** 16
-- **Entities Discovered:** 220
-- **Relations Discovered:** 57
+- **Documents Processed:** 10
+- **Chunks Created:** 32
+- **Embeddings Generated:** 32
+- **Entities Discovered:** 611
+- **Relations Discovered:** 157
+- **Prompt Tokens (In):** 37,201
+- **Completion Tokens (Out):** 30,027
+- **Total Tokens:** 67,228
 
 ## Sample Extracted Relations (Spot Check)
 | Source | Relation | Target | Quote |
 |---|---|---|---|
-| Men's canoe sprint K-2 1,000 metres | PART_OF | 2012 Summer Olympics | "The men's canoe sprint K-2 1,000 metres competition at the 2012 Olympic Games in London took place b" |
-| Men's canoe sprint K-2 1,000 metres | HELD_AT | Eton Dorney | "The men's canoe sprint K-2 1,000 metres competition at the 2012 Olympic Games in London took place b" |
-| Rudolf Dombi | REPRESENTS | Hungary | "Rudolf Dombi and Roland Kökény from Hungary won the gold medal." |
-| Roland Kökény | REPRESENTS | Hungary | "Rudolf Dombi and Roland Kökény from Hungary won the gold medal." |
-| Fernando Pimenta | REPRESENTS | Portugal | "Portugal's Fernando Pimenta and Emanuel Silva won silver" |
-| Emanuel Silva | REPRESENTS | Portugal | "Portugal's Fernando Pimenta and Emanuel Silva won silver" |
-| Martin Hollstein | REPRESENTS | Germany | "Martin Hollstein and Andreas Ihle from Germany took bronze." |
-| Andreas Ihle | REPRESENTS | Germany | "Martin Hollstein and Andreas Ihle from Germany took bronze." |
-| Martin Hollstein | COMPETED_AGAINST | Andreas Ihle | "Martin HollsteinAndreas Ihle" |
-| Peter Gelle | COMPETED_AGAINST | Erik Vlček | "Peter GelleErik Vlček" |
+| Men's 400 metres hurdles | PART_OF | 2004 Summer Olympics | "The men's 400 metres hurdles at the 2004 Summer Olympics as part of the athletics program were held " |
+| Men's 400 metres hurdles | HELD_AT | Athens Olympic Stadium | "The men's 400 metres hurdles at the 2004 Summer Olympics as part of the athletics program were held " |
+| Félix Sánchez | REPRESENTS | Dominican Republic | "The event was won by Félix Sánchez of the Dominican Republic" |
+| Danny McFarlane | REPRESENTS | Jamaica | "Silver went to Danny McFarlane of Jamaica" |
+| Naman Keïta | REPRESENTS | France | "Naman Keïta's bronze was France's first medal in the event" |
+| Angelo Taylor | REPRESENTS | United States | "gold medalist Angelo Taylor of the United States" |
+| Angelo Taylor | REPRESENTS | United States | "gold medalist Angelo Taylor of the United States" |
+| Hadi Souan Somayli | REPRESENTS | Saudi Arabia | "silver medalist Hadi Souan Somayli of Saudi Arabia" |
+| Llewellyn Herbert | REPRESENTS | South Africa | "bronze medalist Llewellyn Herbert of South Africa" |
+| Félix Sánchez | REPRESENTS | Dominican Republic | "Dominican Republic's Félix Sánchez" |

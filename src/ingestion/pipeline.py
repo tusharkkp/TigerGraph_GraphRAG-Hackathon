@@ -124,6 +124,7 @@ class IngestionPipeline:
             chunk_texts = [c["text"] for c in chunks]
             embeddings_res = self.embeddings.embed_documents(chunk_texts)
             stats["embeddings_generated"] += len(embeddings_res.embeddings)
+            stats["tokens_in"] += embeddings_res.tokens_used
 
             # Attach embeddings to chunks
             for i, c in enumerate(chunks):
@@ -137,6 +138,9 @@ class IngestionPipeline:
             for chunk in chunks:
                 extraction = self.extractor.extract_from_chunk(chunk)
                 elements = self.extractor.build_graph_elements(chunk, extraction)
+
+                stats["tokens_in"] += extraction.tokens_in
+                stats["tokens_out"] += extraction.tokens_out
 
                 all_entities.extend(elements["entities"])
                 all_mentions.extend(elements["mentions_edges"])
@@ -228,6 +232,7 @@ class IngestionPipeline:
 
         md_file = REPORTS_DIR / "ingestion_stats.md"
         now = datetime.datetime.now(datetime.UTC).isoformat()
+        total_tokens = stats.get("tokens_in", 0) + stats.get("tokens_out", 0)
         md_content = f"""# Ingestion Statistics Report
 
 **Generated:** {now}
@@ -238,6 +243,9 @@ class IngestionPipeline:
 - **Embeddings Generated:** {stats['embeddings_generated']}
 - **Entities Discovered:** {stats['entities_extracted']}
 - **Relations Discovered:** {stats['relations_extracted']}
+- **Input Tokens:** {stats['tokens_in']:,}
+- **Output Tokens:** {stats['tokens_out']:,}
+- **Total Tokens:** {total_tokens:,}
 
 ## Sample Extracted Relations (Spot Check)
 | Source | Relation | Target | Quote |
