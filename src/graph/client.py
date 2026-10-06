@@ -1,4 +1,4 @@
-"""
+""" 
 TigerGraph Savanna client wrapper.
 
 Encapsulates pyTigerGraph connection management, token authentication,
@@ -61,7 +61,11 @@ class TigerGraphClient:
             try:
                 import requests
                 clean_host = host.replace("https://", "").replace("http://", "").strip("/")
-                resp = requests.post(f"https://{clean_host}/gsql/v1/tokens", json={"secret": secret}, verify=False, timeout=10)
+                resp = requests.post(
+                    f"https://{clean_host}/gsql/v1/tokens",
+                    json={"secret": secret},
+                    timeout=10,
+                )
                 if resp.status_code == 200 and not resp.json().get("error"):
                     self._conn.apiToken = resp.json()["token"]
             except Exception as e:
