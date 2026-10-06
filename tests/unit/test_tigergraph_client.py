@@ -123,3 +123,31 @@ class TestTigerGraphClient:
         mock_conn.createSecret.assert_not_called()
         mock_conn.getToken.assert_called_once_with("configured_secret")
         assert mock_conn.apiToken == "refreshed_token"
+
+    def test_token_exchange_uses_tls_verification(self, monkeypatch):
+        settings = TigerGraphSettings(
+            tg_host="https://mock.tigergraph.com",
+            tg_secret="configured_secret",
+        )
+        mock_conn = MagicMock()
+        token_response = MagicMock()
+        token_response.status_code = 200
+        token_response.json.return_value = {"token": "new_token"}
+
+        import requests
+
+        post = MagicMock(return_value=token_response)
+        monkeypatch.setattr(requests, "post", post)
+
+        import pyTigerGraph
+
+        monkeypatch.setattr(pyTigerGraph, "TigerGraphConnection", MagicMock(return_value=mock_conn))
+
+        TigerGraphClient(settings=settings).conn
+
+        post.assert_called_once_with(
+            "https://mock.tigergraph.com/gsql/v1/tokens",
+            json={"secret": "configured_secret"},
+            timeout=10,
+        )
+        assert mock_conn.apiToken == "new_token"
