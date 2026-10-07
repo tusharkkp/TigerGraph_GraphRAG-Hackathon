@@ -1,0 +1,12 @@
+{
+  "docs_completed_in_run": 325,
+  "chunks_created_in_run": 923,
+  "docs_per_sec": 0.17,
+  "chunks_per_sec": 0.48,
+  "elapsed_seconds": 1914.8,
+  "eta_seconds": 15141.4,
+  "eta_human": "4:12:21",
+  "total_corpus_docs": 2951,
+  "total_processed_docs": 381,
+  "embedding_model": "BAAI/bge-base-en-v1.5"
+}

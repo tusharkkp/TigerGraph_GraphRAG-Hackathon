@@ -1,0 +1,23 @@
+{
+  "pipeline": "p2",
+  "split": "val",
+  "total_questions": 3,
+  "accuracy": 0.0,
+  "stage1_match_rate": 0.0,
+  "mean_latency_ms": 13753.7,
+  "total_tokens": 13460,
+  "avg_tokens_per_q": 4486.7,
+  "recall@1": 0.0,
+  "recall@5": 0.0,
+  "mrr": 0.0,
+  "by_qtype": {
+    "aggregation": {
+      "total": 1,
+      "pass": 0
+    },
+    "multi_hop": {
+      "total": 2,
+      "pass": 0
+    }
+  }
+}

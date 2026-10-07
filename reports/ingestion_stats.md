@@ -1,27 +1,27 @@
 # Ingestion Statistics Report
 
-**Generated:** 2026-10-01T18:27:08.380655+00:00
+**Generated:** 2026-10-02T08:41:29.326945+00:00
 
 ## Summary
-- **Documents Processed:** 10
-- **Chunks Created:** 32
-- **Embeddings Generated:** 32
-- **Entities Discovered:** 611
-- **Relations Discovered:** 157
-- **Prompt Tokens (In):** 37,201
-- **Completion Tokens (Out):** 30,027
-- **Total Tokens:** 67,228
+- **Documents Processed:** 381
+- **Chunks Created:** 969
+- **Embeddings Generated:** 969
+- **Entities Discovered:** 4167
+- **Relations Discovered:** 3926
+- **Input Tokens:** 40,563
+- **Output Tokens:** 23,033
+- **Total Tokens:** 63,596
 
 ## Sample Extracted Relations (Spot Check)
 | Source | Relation | Target | Quote |
 |---|---|---|---|
-| Men's 400 metres hurdles | PART_OF | 2004 Summer Olympics | "The men's 400 metres hurdles at the 2004 Summer Olympics as part of the athletics program were held " |
-| Men's 400 metres hurdles | HELD_AT | Athens Olympic Stadium | "The men's 400 metres hurdles at the 2004 Summer Olympics as part of the athletics program were held " |
-| Félix Sánchez | REPRESENTS | Dominican Republic | "The event was won by Félix Sánchez of the Dominican Republic" |
-| Danny McFarlane | REPRESENTS | Jamaica | "Silver went to Danny McFarlane of Jamaica" |
-| Naman Keïta | REPRESENTS | France | "Naman Keïta's bronze was France's first medal in the event" |
-| Angelo Taylor | REPRESENTS | United States | "gold medalist Angelo Taylor of the United States" |
-| Angelo Taylor | REPRESENTS | United States | "gold medalist Angelo Taylor of the United States" |
-| Hadi Souan Somayli | REPRESENTS | Saudi Arabia | "silver medalist Hadi Souan Somayli of Saudi Arabia" |
-| Llewellyn Herbert | REPRESENTS | South Africa | "bronze medalist Llewellyn Herbert of South Africa" |
-| Félix Sánchez | REPRESENTS | Dominican Republic | "Dominican Republic's Félix Sánchez" |
+| Women's 200 metre backstroke | PART_OF | 2000 Summer Olympics | "The women's 200 metre backstroke event at the 2000 Summer Olympics took place on 21–22 September" |
+| Women's 200 metre backstroke | HELD_AT | Sydney International Aquatic Centre | "The women's 200 metre backstroke event at the 2000 Summer Olympics took place on 21–22 September at " |
+| Diana Mocanu | REPRESENTS | Romania | "gold: Diana Mocanu goldNOC: ROM" |
+| Roxana Maracineanu | REPRESENTS | France | "silver: Roxana Maracineanu silverNOC: FRA" |
+| Miki Nakao | REPRESENTS | Japan | "bronze: Miki Nakao bronzeNOC: JPN" |
+| Miki Nakao | COMPETED_AGAINST | Tomoko Hagiwara | "Japan's Miki Nakao powered home with the bronze in 2:11.05 to hold off her fast-pacing teammate Tomo" |
+| Amanda Adkins | REPRESENTS | United States | "U.S. swimmer Amanda Adkins" |
+| Nina Zhivanevskaya | REPRESENTS | Spain | "Spain's Nina Zhivanevskaya" |
+| Antje Buschschulte | REPRESENTS | Germany | "Germany's Antje Buschschulte" |
+| Kelly Stefanyshyn | REPRESENTS | Canada | "Canada's Kelly Stefanyshyn" |

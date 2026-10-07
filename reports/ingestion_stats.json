@@ -1,81 +1,81 @@
 {
-  "docs_processed": 10,
-  "chunks_created": 32,
-  "entities_extracted": 611,
-  "relations_extracted": 157,
-  "tokens_in": 37201,
-  "tokens_out": 30027,
-  "embeddings_generated": 32,
+  "docs_processed": 381,
+  "chunks_created": 969,
+  "entities_extracted": 4167,
+  "relations_extracted": 3926,
+  "tokens_in": 40563,
+  "tokens_out": 23033,
+  "embeddings_generated": 969,
   "sample_relations": [
     {
-      "source": "Men's 400 metres hurdles",
+      "source": "Women's 200 metre backstroke",
       "relation": "PART_OF",
-      "target": "2004 Summer Olympics",
-      "quote": "The men's 400 metres hurdles at the 2004 Summer Olympics as part of the athletics program were held at the Athens Olympic Stadium",
-      "doc_id": "Q1433269"
+      "target": "2000 Summer Olympics",
+      "quote": "The women's 200 metre backstroke event at the 2000 Summer Olympics took place on 21\u201322 September",
+      "doc_id": "Q3879591"
     },
     {
-      "source": "Men's 400 metres hurdles",
+      "source": "Women's 200 metre backstroke",
       "relation": "HELD_AT",
-      "target": "Athens Olympic Stadium",
-      "quote": "The men's 400 metres hurdles at the 2004 Summer Olympics as part of the athletics program were held at the Athens Olympic Stadium",
-      "doc_id": "Q1433269"
+      "target": "Sydney International Aquatic Centre",
+      "quote": "The women's 200 metre backstroke event at the 2000 Summer Olympics took place on 21\u201322 September at the Sydney International Aquatic Centre",
+      "doc_id": "Q3879591"
     },
     {
-      "source": "F\u00e9lix S\u00e1nchez",
+      "source": "Diana Mocanu",
       "relation": "REPRESENTS",
-      "target": "Dominican Republic",
-      "quote": "The event was won by F\u00e9lix S\u00e1nchez of the Dominican Republic",
-      "doc_id": "Q1433269"
+      "target": "Romania",
+      "quote": "gold: Diana Mocanu goldNOC: ROM",
+      "doc_id": "Q3879591"
     },
     {
-      "source": "Danny McFarlane",
-      "relation": "REPRESENTS",
-      "target": "Jamaica",
-      "quote": "Silver went to Danny McFarlane of Jamaica",
-      "doc_id": "Q1433269"
-    },
-    {
-      "source": "Naman Ke\u00efta",
+      "source": "Roxana Maracineanu",
       "relation": "REPRESENTS",
       "target": "France",
-      "quote": "Naman Ke\u00efta's bronze was France's first medal in the event",
-      "doc_id": "Q1433269"
+      "quote": "silver: Roxana Maracineanu silverNOC: FRA",
+      "doc_id": "Q3879591"
     },
     {
-      "source": "Angelo Taylor",
+      "source": "Miki Nakao",
+      "relation": "REPRESENTS",
+      "target": "Japan",
+      "quote": "bronze: Miki Nakao bronzeNOC: JPN",
+      "doc_id": "Q3879591"
+    },
+    {
+      "source": "Miki Nakao",
+      "relation": "COMPETED_AGAINST",
+      "target": "Tomoko Hagiwara",
+      "quote": "Japan's Miki Nakao powered home with the bronze in 2:11.05 to hold off her fast-pacing teammate Tomoko Hagiwara",
+      "doc_id": "Q3879591"
+    },
+    {
+      "source": "Amanda Adkins",
       "relation": "REPRESENTS",
       "target": "United States",
-      "quote": "gold medalist Angelo Taylor of the United States",
-      "doc_id": "Q1433269"
+      "quote": "U.S. swimmer Amanda Adkins",
+      "doc_id": "Q3879591"
     },
     {
-      "source": "Angelo Taylor",
+      "source": "Nina Zhivanevskaya",
       "relation": "REPRESENTS",
-      "target": "United States",
-      "quote": "gold medalist Angelo Taylor of the United States",
-      "doc_id": "Q1433269"
+      "target": "Spain",
+      "quote": "Spain's Nina Zhivanevskaya",
+      "doc_id": "Q3879591"
     },
     {
-      "source": "Hadi Souan Somayli",
+      "source": "Antje Buschschulte",
       "relation": "REPRESENTS",
-      "target": "Saudi Arabia",
-      "quote": "silver medalist Hadi Souan Somayli of Saudi Arabia",
-      "doc_id": "Q1433269"
+      "target": "Germany",
+      "quote": "Germany's Antje Buschschulte",
+      "doc_id": "Q3879591"
     },
     {
-      "source": "Llewellyn Herbert",
+      "source": "Kelly Stefanyshyn",
       "relation": "REPRESENTS",
-      "target": "South Africa",
-      "quote": "bronze medalist Llewellyn Herbert of South Africa",
-      "doc_id": "Q1433269"
-    },
-    {
-      "source": "F\u00e9lix S\u00e1nchez",
-      "relation": "REPRESENTS",
-      "target": "Dominican Republic",
-      "quote": "Dominican Republic's F\u00e9lix S\u00e1nchez",
-      "doc_id": "Q1433269"
+      "target": "Canada",
+      "quote": "Canada's Kelly Stefanyshyn",
+      "doc_id": "Q3879591"
     }
   ]
 }
