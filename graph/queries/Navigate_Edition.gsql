@@ -1,23 +1,20 @@
 // Navigate_Edition query for TigerGraph Savanna
 // Traverses PREVIOUS_EDITION or NEXT_EDITION edges to retrieve target event details and medalists
+// PREVIOUS_EDITION / NEXT_EDITION are DIRECTED (V2 arrow syntax E>); MEDALIST / DESCRIBES_EVENT are UNDIRECTED.
 
 CREATE OR REPLACE QUERY Navigate_Edition(STRING event_id, STRING direction = "PREVIOUS") FOR GRAPH GraphRAG SYNTAX v3 {
   StartEv = {Event.*};
   StartEv = SELECT e FROM StartEv:e WHERE e.event_id == event_id;
 
   IF direction == "PREVIOUS" THEN
-    TargetEv = SELECT te FROM StartEv:e -(PREVIOUS_EDITION:p)-> Event:te;
-    Medalists = SELECT a FROM TargetEv:te -(MEDALIST:m)-> Athlete:a;
-    Docs = SELECT d FROM TargetEv:te -(DESCRIBES_EVENT:de)- Document:d;
-    PRINT TargetEv[TargetEv.event_id, TargetEv.name, TargetEv.year, TargetEv.season, TargetEv.competitors, TargetEv.nations, TargetEv.winning_value];
-    PRINT Medalists[Medalists.athlete_id, Medalists.name];
-    PRINT Docs[Docs.doc_id, Docs.title];
+    TargetEv = SELECT te FROM StartEv:e -(PREVIOUS_EDITION>:p)- Event:te;
   ELSE
-    TargetEv = SELECT te FROM StartEv:e -(NEXT_EDITION:n)-> Event:te;
-    Medalists = SELECT a FROM TargetEv:te -(MEDALIST:m)-> Athlete:a;
-    Docs = SELECT d FROM TargetEv:te -(DESCRIBES_EVENT:de)- Document:d;
-    PRINT TargetEv[TargetEv.event_id, TargetEv.name, TargetEv.year, TargetEv.season, TargetEv.competitors, TargetEv.nations, TargetEv.winning_value];
-    PRINT Medalists[Medalists.athlete_id, Medalists.name];
-    PRINT Docs[Docs.doc_id, Docs.title];
+    TargetEv = SELECT te FROM StartEv:e -(NEXT_EDITION>:n)- Event:te;
   END;
+
+  Medalists = SELECT a FROM TargetEv:te -(MEDALIST:m)- Athlete:a;
+  Docs = SELECT d FROM TargetEv:te -(DESCRIBES_EVENT:de)- Document:d;
+  PRINT TargetEv[TargetEv.event_id, TargetEv.name, TargetEv.year, TargetEv.season, TargetEv.competitors, TargetEv.nations, TargetEv.winning_value];
+  PRINT Medalists[Medalists.athlete_id, Medalists.name];
+  PRINT Docs[Docs.doc_id, Docs.title];
 }

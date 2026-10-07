@@ -10,8 +10,8 @@ CREATE OR REPLACE QUERY Event_Details(STRING event_id) FOR GRAPH GraphRAG SYNTAX
   Venues = SELECT v FROM Ev:e -(HELD_AT:h)- Venue:v;
   Sports = SELECT s FROM Ev:e -(BELONGS_TO_SPORT:b)- Sport:s;
   GamesV = SELECT g FROM Ev:e -(PART_OF_GAMES:p)- Games:g;
-  PrevE = SELECT pe FROM Ev:e -(PREVIOUS_EDITION:pe_edge)- Event:pe;
-  NextE = SELECT ne FROM Ev:e -(NEXT_EDITION:ne_edge)- Event:ne;
+  PrevE = SELECT pe FROM Ev:e -(PREVIOUS_EDITION>:pe_edge)- Event:pe;
+  NextE = SELECT ne FROM Ev:e -(NEXT_EDITION>:ne_edge)- Event:ne;
 
   PRINT Ev[Ev.event_id, Ev.name, Ev.year, Ev.season, Ev.gender, Ev.competitors, Ev.nations, Ev.winning_value, Ev.start_date, Ev.end_date];
   PRINT Docs[Docs.doc_id, Docs.title];

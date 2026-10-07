@@ -18,7 +18,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from src.config import PROJECT_ROOT, REPORTS_DIR
+from src.config import PROJECT_ROOT, REPORTS_DIR, get_embedding_config
 from src.contracts import JudgeResult, PipelineResult, Question
 from src.eval.judge import TwoStageJudge
 from src.eval.retrieval_metrics import evaluate_retrieval

@@ -1,5 +1,6 @@
 // Find_Events query for TigerGraph Savanna
 // Filtered search over Event vertices with metadata filters and citation doc_ids
+// total_count = number of matching events BEFORE limit_k is applied.
 
 CREATE OR REPLACE QUERY Find_Events(
   STRING sport_name = "",
@@ -13,7 +14,7 @@ CREATE OR REPLACE QUERY Find_Events(
   INT limit_k = 50
 ) FOR GRAPH GraphRAG SYNTAX v3 {
   SumAccum<INT> @@total_count;
-  
+
   AllEvents = {Event.*};
   Filtered = SELECT e FROM AllEvents:e
     WHERE (year_val == 0 OR e.year == year_val)
@@ -22,19 +23,21 @@ CREATE OR REPLACE QUERY Find_Events(
       AND (min_comp == 0 OR e.competitors >= min_comp)
       AND (max_comp == 0 OR e.competitors <= max_comp)
       AND (min_nat == 0 OR e.nations >= min_nat)
-      AND (max_nat == 0 OR e.nations <= max_nat)
-    POST-ACCUM @@total_count += 1;
+      AND (max_nat == 0 OR e.nations <= max_nat);
 
   IF sport_name != "" THEN
     Filtered = SELECT e FROM Filtered:e -(BELONGS_TO_SPORT:b)- Sport:s
       WHERE lower(s.name) == lower(sport_name);
   END;
 
-  Docs = SELECT d FROM Filtered:e -(DESCRIBES_EVENT:de)- Document:d;
-  Sports = SELECT s FROM Filtered:e -(BELONGS_TO_SPORT:b)- Sport:s;
-  
+  @@total_count = Filtered.size();
+
+  Top = SELECT e FROM Filtered:e ORDER BY e.year ASC LIMIT limit_k;
+  Docs = SELECT d FROM Top:e -(DESCRIBES_EVENT:de)- Document:d;
+  Sports = SELECT s FROM Top:e -(BELONGS_TO_SPORT:b)- Sport:s;
+
   PRINT @@total_count;
-  PRINT Filtered[Filtered.event_id, Filtered.name, Filtered.year, Filtered.season, Filtered.gender, Filtered.competitors, Filtered.nations, Filtered.winning_value] LIMIT limit_k;
-  PRINT Docs[Docs.doc_id, Docs.title] LIMIT limit_k;
-  PRINT Sports[Sports.sport_id, Sports.name] LIMIT limit_k;
+  PRINT Top[Top.event_id, Top.name, Top.year, Top.season, Top.gender, Top.competitors, Top.nations, Top.winning_value];
+  PRINT Docs[Docs.doc_id, Docs.title];
+  PRINT Sports[Sports.sport_id, Sports.name];
 }

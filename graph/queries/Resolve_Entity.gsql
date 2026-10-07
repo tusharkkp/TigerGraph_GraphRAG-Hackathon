@@ -1,36 +1,41 @@
 // Resolve_Entity query for TigerGraph Savanna
 // Resolves natural language entity mentions to graph vertices across Athlete, Country, Venue, Sport, and Event
+// Exact (case-insensitive) match only; fuzzy matching is done client-side in src/agentic/entity_linker.py.
 
 CREATE OR REPLACE QUERY Resolve_Entity(STRING query_term, STRING entity_type = "all", INT limit_k = 5) FOR GRAPH GraphRAG SYNTAX v3 {
   STRING lower_q = lower(query_term);
-  
+
   IF entity_type == "athlete" OR entity_type == "all" THEN
     Athletes = {Athlete.*};
-    AthMatches = SELECT a FROM Athletes:a WHERE lower(a.normalized_name) == lower_q OR lower(a.name) == lower_q;
-    PRINT AthMatches[AthMatches.athlete_id, AthMatches.name, AthMatches.normalized_name] LIMIT limit_k;
+    AthMatches = SELECT a FROM Athletes:a
+      WHERE lower(a.normalized_name) == lower_q OR lower(a.name) == lower_q
+      LIMIT limit_k;
+    PRINT AthMatches[AthMatches.athlete_id, AthMatches.name, AthMatches.normalized_name];
   END;
 
   IF entity_type == "country" OR entity_type == "all" THEN
     Countries = {Country.*};
-    CoMatches = SELECT c FROM Countries:c WHERE lower(c.normalized_name) == lower_q OR lower(c.name) == lower_q OR lower(c.noc) == lower_q;
-    PRINT CoMatches[CoMatches.country_id, CoMatches.name, CoMatches.noc] LIMIT limit_k;
+    CoMatches = SELECT c FROM Countries:c
+      WHERE lower(c.normalized_name) == lower_q OR lower(c.name) == lower_q OR lower(c.noc) == lower_q
+      LIMIT limit_k;
+    PRINT CoMatches[CoMatches.country_id, CoMatches.name, CoMatches.noc];
   END;
 
   IF entity_type == "venue" OR entity_type == "all" THEN
     Venues = {Venue.*};
-    VeMatches = SELECT v FROM Venues:v WHERE lower(v.name) == lower_q;
-    PRINT VeMatches[VeMatches.venue_id, VeMatches.name] LIMIT limit_k;
+    VeMatches = SELECT v FROM Venues:v WHERE lower(v.name) == lower_q LIMIT limit_k;
+    PRINT VeMatches[VeMatches.venue_id, VeMatches.name];
   END;
 
   IF entity_type == "sport" OR entity_type == "all" THEN
     Sports = {Sport.*};
-    SpMatches = SELECT s FROM Sports:s WHERE lower(s.name) == lower_q;
-    PRINT SpMatches[SpMatches.sport_id, SpMatches.name] LIMIT limit_k;
+    SpMatches = SELECT s FROM Sports:s WHERE lower(s.name) == lower_q LIMIT limit_k;
+    PRINT SpMatches[SpMatches.sport_id, SpMatches.name];
   END;
 
   IF entity_type == "event" OR entity_type == "all" THEN
     Events = {Event.*};
-    EvMatches = SELECT e FROM Events:e WHERE lower(e.name) == lower_q;
-    PRINT EvMatches[EvMatches.event_id, EvMatches.name, EvMatches.year, EvMatches.season] LIMIT limit_k;
+    EvMatches = SELECT e FROM Events:e WHERE lower(e.name) == lower_q LIMIT limit_k;
+    PRINT EvMatches[EvMatches.event_id, EvMatches.name, EvMatches.year, EvMatches.season];
   END;
 }

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import re
 
 from src.config import PROJECT_ROOT, get_tg_settings
 from src.graph.client import TigerGraphClient
@@ -54,40 +55,57 @@ def install_schema(client: TigerGraphClient, dry_run: bool = False) -> None:
         raise
 
 
-def install_queries(client: TigerGraphClient, dry_run: bool = False) -> None:
-    """Install all queries found in graph/queries/*.gsql."""
+def _query_name(q_code: str, fallback: str) -> str:
+    m = re.search(r"CREATE\s+(?:OR\s+REPLACE\s+)?(?:DISTRIBUTED\s+)?QUERY\s+(\w+)", q_code, re.IGNORECASE)
+    return m.group(1) if m else fallback
+
+
+def install_queries(client: TigerGraphClient, dry_run: bool = False, only: list[str] | None = None) -> None:
+    """Create all queries in graph/queries/*.gsql, then compile them in one INSTALL call."""
     if not QUERIES_DIR.exists():
         logger.info("No queries directory found at %s", QUERIES_DIR)
         return
 
-    query_files = list(QUERIES_DIR.glob("*.gsql"))
+    query_files = sorted(QUERIES_DIR.glob("*.gsql"))
     if not query_files:
         logger.info("No .gsql query files found in %s", QUERIES_DIR)
         return
 
     graphname = client.settings.tg_graphname or "GraphRAG"
+    created: list[str] = []
     for qfile in query_files:
         with open(qfile, encoding="utf-8") as f:
             q_code = f.read()
-
-        logger.info("Deploying query from %s...", qfile.name)
-        if dry_run:
-            logger.info("[Dry Run] Would install query %s", qfile.name)
+        name = _query_name(q_code, qfile.stem)
+        if only and name not in only:
             continue
 
+        logger.info("Creating query %s (from %s)...", name, qfile.name)
+        if dry_run:
+            continue
         try:
-            # Install query via pyTigerGraph or gsql command
-            gsql_cmd = f"USE GRAPH {graphname}\n{q_code}\nINSTALL QUERY {qfile.stem}"
-            res = client.conn.gsql(gsql_cmd)
-            logger.info("Installed %s: %s", qfile.stem, res)
+            res = client.conn.gsql(f"USE GRAPH {graphname}\n{q_code}")
+            if "error" in str(res).lower() or "fail" in str(res).lower():
+                logger.error("Create %s reported a problem:\n%s", name, res)
+                continue
+            created.append(name)
         except Exception as e:
-            logger.error("Failed to install query %s: %s", qfile.stem, e)
+            logger.error("Failed to create query %s: %s", name, e)
+
+    if dry_run or not created:
+        logger.info("Nothing to install (dry_run=%s, created=%s)", dry_run, created)
+        return
+
+    logger.info("Installing %d queries: %s", len(created), ", ".join(created))
+    res = client.conn.gsql(f"USE GRAPH {graphname}\nINSTALL QUERY {', '.join(created)}")
+    logger.info("Install result:\n%s", res)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Install TigerGraph schema and queries.")
     parser.add_argument("--dry-run", action="store_true", help="Print DDL without executing")
     parser.add_argument("--queries-only", action="store_true", help="Install queries only")
+    parser.add_argument("--only", nargs="*", default=None, help="Install only these query names")
     args = parser.parse_args()
 
     settings = get_tg_settings()
@@ -95,7 +113,7 @@ def main() -> None:
 
     if not args.queries_only:
         install_schema(client, dry_run=args.dry_run)
-    install_queries(client, dry_run=args.dry_run)
+    install_queries(client, dry_run=args.dry_run, only=args.only)
 
 
 if __name__ == "__main__":
