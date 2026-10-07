@@ -28,6 +28,7 @@ data/raw/
 # === Results (large, regenerable) ===
 results/
 logs/
+scratch/
 
 # === OS ===
 .DS_Store

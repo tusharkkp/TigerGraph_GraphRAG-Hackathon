@@ -201,6 +201,7 @@ class LLMGateway:
         temperature: float | None = None,
         max_output_tokens: int | None = None,
         tag: CallTag | None = None,
+        model: str | None = None,
     ) -> LLMResult:
         """
         Generate text or structured output from a Gemini model.
@@ -213,9 +214,10 @@ class LLMGateway:
             temperature: Override temperature (defaults to role config).
             max_output_tokens: Override max output tokens.
             tag: Metadata tag for token accounting and logging.
+            model: Optional model name override.
         """
         role_cfg = get_model_for_role(role)
-        model_name = role_cfg["model"]
+        model_name = model or role_cfg["model"]
         eff_temp = float(temperature if temperature is not None else role_cfg.get("temperature", 0.0))
         eff_max_tokens = int(
             max_output_tokens if max_output_tokens is not None else role_cfg.get("max_output_tokens", 2048)
