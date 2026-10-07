@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: tigergraph-agentic-graphrag
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn src.app.api:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: TG_HOST
+        sync: false
+      - key: TG_GRAPHNAME
+        value: GraphRAG
+      - key: TG_USERNAME
+        value: tigergraph
+      - key: TG_PASSWORD
+        sync: false
+      - key: TG_SECRET
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false

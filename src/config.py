@@ -7,9 +7,20 @@ All magic numbers live in config files, not in code.
 
 from __future__ import annotations
 
+import os
 from functools import cache
 from pathlib import Path
 from typing import Any
+
+# If running on Streamlit Cloud, inject st.secrets into os.environ
+try:
+    import streamlit as _st
+    if hasattr(_st, "secrets"):
+        for _k, _v in _st.secrets.items():
+            if _k not in os.environ and isinstance(_v, str):
+                os.environ[_k] = _v
+except Exception:
+    pass
 
 import yaml
 from pydantic import Field
