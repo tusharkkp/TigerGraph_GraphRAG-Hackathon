@@ -165,3 +165,4 @@ class EmbedResult(BaseModel):
     tokens_used: int = Field(ge=0)
     latency_ms: int = Field(ge=0)
     cache_hit: bool = False
+    model: str = ""

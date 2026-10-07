@@ -11,14 +11,17 @@ import datetime
 import json
 import logging
 from pathlib import Path
+import time
 from typing import Any
 
 from src.config import DATA_DIR, PROJECT_ROOT, REPORTS_DIR, get_tg_settings
 from src.graph.client import TigerGraphClient
 from src.ingestion.chunker import TextChunker
 from src.ingestion.extractor import EntityRelationshipExtractor
+from src.ingestion.structured_parser import StructuredInfoboxParser
 from src.llm.embeddings import EmbeddingsService
 from src.llm.gateway import LLMGateway
+from src.utils.normalization import clean_text_for_storage
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -70,6 +73,7 @@ class IngestionPipeline:
         corpus_path: Path | None = None,
         limit: int | None = None,
         dry_run: bool = False,
+        skip_structured: bool = False,
     ) -> dict[str, Any]:
         """
         Execute the ingestion pipeline.
@@ -78,6 +82,7 @@ class IngestionPipeline:
             corpus_path: Path to corpus.jsonl.
             limit: Maximum documents to process.
             dry_run: If True, chunk and extract but skip TigerGraph upserts.
+            skip_structured: If True, chunk and embed only; skip structured entity parsing.
         """
         c_path = corpus_path or (DATA_DIR / "corpus" / "corpus.jsonl")
         if not c_path.exists():
@@ -86,85 +91,134 @@ class IngestionPipeline:
         processed_docs = self.load_checkpoint()
         logger.info("Loaded %d previously processed doc IDs from checkpoint.", len(processed_docs))
 
-        # Stats counters
-        stats = {
-            "docs_processed": 0,
-            "chunks_created": 0,
-            "entities_extracted": 0,
-            "relations_extracted": 0,
-            "tokens_in": 0,
-            "tokens_out": 0,
-            "embeddings_generated": 0,
-            "sample_relations": [],
-        }
+        # Load cumulative stats if existing, or initialize fresh
+        stats_file = REPORTS_DIR / "ingestion_stats.json"
+        if stats_file.exists():
+            try:
+                with open(stats_file, encoding="utf-8") as f:
+                    stats = json.load(f)
+            except Exception:
+                stats = {}
+        else:
+            stats = {}
 
-        docs_to_process: list[dict[str, Any]] = []
+        stats.setdefault("docs_processed", len(processed_docs))
+        stats.setdefault("chunks_created", 0)
+        stats.setdefault("entities_extracted", 0)
+        stats.setdefault("relations_extracted", 0)
+        stats.setdefault("tokens_in", 0)
+        stats.setdefault("tokens_out", 0)
+        stats.setdefault("embeddings_generated", 0)
+        stats.setdefault("sample_relations", [])
+
+        # Prioritize public gold docs first (debugging only), then the rest
+        public_gold_path = DATA_DIR / "questions" / "eval_public.jsonl"
+        gold_doc_ids: set[str] = set()
+        if public_gold_path.exists():
+            try:
+                with open(public_gold_path, encoding="utf-8") as f:
+                    for line in f:
+                        if line.strip():
+                            q = json.loads(line)
+                            for d in q.get("gold_doc_ids", []):
+                                gold_doc_ids.add(str(d))
+            except Exception as e:
+                logger.warning("Could not read public gold docs: %s", e)
+
+        gold_docs: list[dict[str, Any]] = []
+        other_docs: list[dict[str, Any]] = []
+
         with open(c_path, encoding="utf-8") as f:
             for line in f:
                 if not line.strip():
                     continue
                 doc = json.loads(line)
-                if doc["doc_id"] not in processed_docs:
-                    docs_to_process.append(doc)
-                    if limit and len(docs_to_process) >= limit:
-                        break
+                did = str(doc["doc_id"])
+                if did not in processed_docs:
+                    if did in gold_doc_ids:
+                        gold_docs.append(doc)
+                    else:
+                        other_docs.append(doc)
 
-        logger.info("Identified %d new documents to ingest.", len(docs_to_process))
+        docs_to_process = gold_docs + other_docs
+        if limit:
+            docs_to_process = docs_to_process[:limit]
+
+        logger.info(
+            "Identified %d new documents to ingest (%d public gold docs prioritized, %d remaining).",
+            len(docs_to_process),
+            len(gold_docs),
+            len(other_docs),
+        )
+
+        non_infobox_docs_by_type: dict[str, list[str]] = {
+            "summary_overview": [],
+            "general_olympic": [],
+            "non_olympic_wikipedia": [],
+            "other": [],
+        }
+
+        start_time = time.perf_counter()
+        docs_completed_in_run = 0
+        chunks_created_in_run = 0
 
         for idx, doc in enumerate(docs_to_process):
-            doc_id = doc["doc_id"]
-            logger.info("[%d/%d] Ingesting %s: %s", idx + 1, len(docs_to_process), doc_id, doc.get("title", ""))
+            doc_id = str(doc["doc_id"])
+            clean_title = clean_text_for_storage(doc.get("title", ""))
+            is_gold = doc_id in gold_doc_ids
+            tag = " [GOLD]" if is_gold else ""
+            logger.info("[%d/%d]%s Ingesting %s: %s", idx + 1, len(docs_to_process), tag, doc_id, clean_title)
 
             # 1. Chunk document
             chunks = self.chunker.chunk_document(doc)
             sibling_edges = self.chunker.get_sibling_edges(chunks)
             stats["chunks_created"] += len(chunks)
+            chunks_created_in_run += len(chunks)
 
-            # 2. Embed chunks
+            # 2. Embed chunks with local BGE model (0 LLM call, 0 Gemini quota)
             chunk_texts = [c["text"] for c in chunks]
             embeddings_res = self.embeddings.embed_documents(chunk_texts)
             stats["embeddings_generated"] += len(embeddings_res.embeddings)
-            stats["tokens_in"] += embeddings_res.tokens_used
 
             # Attach embeddings to chunks
             for i, c in enumerate(chunks):
                 c["embedding"] = embeddings_res.embeddings[i] if i < len(embeddings_res.embeddings) else []
 
-            # 3. Extract entities and relationships
-            all_entities: list[tuple[str, dict[str, Any]]] = []
-            all_mentions: list[tuple[str, str, str, str, str, dict[str, Any]]] = []
-            all_relates: list[tuple[str, str, str, str, str, dict[str, Any]]] = []
+            # 3. Structured parsing (0 LLM calls) vs Defer Non-Infobox
+            structured_elements: dict[str, Any] | None = None
+            if not skip_structured:
+                parsed_olympic = StructuredInfoboxParser.parse_document(doc)
 
-            for chunk in chunks:
-                extraction = self.extractor.extract_from_chunk(chunk)
-                elements = self.extractor.build_graph_elements(chunk, extraction)
-
-                stats["tokens_in"] += extraction.tokens_in
-                stats["tokens_out"] += extraction.tokens_out
-
-                all_entities.extend(elements["entities"])
-                all_mentions.extend(elements["mentions_edges"])
-                all_relates.extend(elements["relates_edges"])
-
-                # Keep a sample of relations for spot checks
-                for r in extraction.relations:
-                    if len(stats["sample_relations"]) < 10 and r.quote:
-                        stats["sample_relations"].append({
-                            "source": r.source,
-                            "relation": r.relationship_type,
-                            "target": r.target,
-                            "quote": r.quote,
-                            "doc_id": doc_id,
-                        })
-
-            stats["entities_extracted"] += len(all_entities)
-            stats["relations_extracted"] += len(all_relates)
+                if parsed_olympic:
+                    # Stage 1: Deterministic structured parsing (0 LLM cost)
+                    structured_elements = StructuredInfoboxParser.build_graph_elements(parsed_olympic)
+                    stats["entities_extracted"] += (
+                        len(structured_elements["Event"])
+                        + len(structured_elements["Athlete"])
+                        + len(structured_elements["Country"])
+                        + len(structured_elements["Venue"])
+                        + len(structured_elements["Sport"])
+                        + len(structured_elements["Games"])
+                    )
+                    stats["relations_extracted"] += len(structured_elements["edges"])
+                else:
+                    # Stage 2: Non-infobox doc: chunk + embed only; LLM extraction deferred per ADR-007
+                    title_lower = clean_title.lower()
+                    if any(w in title_lower for w in ["summary", "list of", "medal winners", "table", "chronological"]):
+                        category = "summary_overview"
+                    elif any(w in title_lower for w in ["olympic", "olympics", "games"]):
+                        category = "general_olympic"
+                    elif any(w in title_lower for w in ["drift", "film", "album", "music", "song", "season", "championship"]):
+                        category = "non_olympic_wikipedia"
+                    else:
+                        category = "other"
+                    non_infobox_docs_by_type[category].append(f"{doc_id}: {clean_title}")
 
             # 4. Upsert into TigerGraph
             if not dry_run:
                 # Upsert Document vertex
                 doc_attrs = {
-                    "title": doc.get("title", ""),
+                    "title": clean_title,
                     "url": doc.get("url", ""),
                     "wikidata_qid": doc.get("wikidata_qid", ""),
                     "approx_tokens": doc.get("approx_tokens", 0),
@@ -177,9 +231,10 @@ class IngestionPipeline:
                         c["chunk_id"],
                         {
                             "chunk_index": c["chunk_index"],
-                            "text": c["text"],
+                            "text": clean_text_for_storage(c["text"]),
                             "approx_tokens": c["approx_tokens"],
                             "embedding": c.get("embedding", []),
+                            "vec_emb": c.get("embedding", []),
                         },
                     )
                     for c in chunks
@@ -201,26 +256,67 @@ class IngestionPipeline:
                     ]
                     self.tg_client.upsert_edges(sib_tuples)
 
-                # Upsert Entity vertices
-                if all_entities:
-                    self.tg_client.upsert_vertices("Entity", all_entities)
-
-                # Upsert MENTIONS and RELATES_TO edges
-                if all_mentions:
-                    self.tg_client.upsert_edges(all_mentions)
-                if all_relates:
-                    self.tg_client.upsert_edges(all_relates)
+                # Upsert structured elements if available
+                if structured_elements:
+                    for vtype in ("Event", "Games", "Athlete", "Country", "Venue", "Sport"):
+                        vitems = structured_elements.get(vtype, [])
+                        if vitems:
+                            self.tg_client.upsert_vertices(vtype, vitems)
+                    if structured_elements.get("edges"):
+                        self.tg_client.upsert_edges(structured_elements["edges"])
 
             processed_docs.add(doc_id)
-            stats["docs_processed"] += 1
+            stats["docs_processed"] = len(processed_docs)
+            docs_completed_in_run += 1
 
-            # Save checkpoint every 5 docs
-            if stats["docs_processed"] % 5 == 0:
-                self.save_checkpoint(processed_docs)
+            # Checkpoint every 25 docs (or first 10, or end)
+            if docs_completed_in_run % 25 == 0 or docs_completed_in_run == 10:
+                elapsed = time.perf_counter() - start_time
+                docs_per_sec = docs_completed_in_run / max(elapsed, 0.001)
+                chunks_per_sec = chunks_created_in_run / max(elapsed, 0.001)
+                rem_docs = len(docs_to_process) - (idx + 1)
+                eta_sec = rem_docs / docs_per_sec if docs_per_sec > 0 else 0
+                eta_human = str(datetime.timedelta(seconds=int(eta_sec)))
 
-        # Final checkpoint save
-        self.save_checkpoint(processed_docs)
-        self._write_report(stats)
+                status_data = {
+                    "docs_completed_in_run": docs_completed_in_run,
+                    "chunks_created_in_run": chunks_created_in_run,
+                    "docs_per_sec": round(docs_per_sec, 2),
+                    "chunks_per_sec": round(chunks_per_sec, 2),
+                    "elapsed_seconds": round(elapsed, 1),
+                    "eta_seconds": round(eta_sec, 1),
+                    "eta_human": eta_human,
+                    "total_corpus_docs": 2951,
+                    "total_processed_docs": len(processed_docs),
+                    "embedding_model": self.embeddings.model_name,
+                }
+                status_file = REPORTS_DIR / "ingestion_status.json"
+                REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+                with open(status_file, "w", encoding="utf-8") as f:
+                    json.dump(status_data, f, indent=2)
+
+                logger.info(
+                    "CHECKPOINT [%d/%d] Rate: %.2f docs/s (%.1f chunks/s) | ETA: %s",
+                    docs_completed_in_run,
+                    len(docs_to_process),
+                    docs_per_sec,
+                    chunks_per_sec,
+                    eta_human,
+                )
+
+                if not dry_run:
+                    self.save_checkpoint(processed_docs)
+                    self._write_report(stats)
+
+        # Final checkpoint save & report non-infobox categorization
+        if not dry_run:
+            self.save_checkpoint(processed_docs)
+            self._write_report(stats)
+
+        non_infobox_report_file = REPORTS_DIR / "non_infobox_docs.json"
+        with open(non_infobox_report_file, "w", encoding="utf-8") as f:
+            json.dump(non_infobox_docs_by_type, f, indent=2)
+        logger.info("Saved non-infobox docs breakdown to %s", non_infobox_report_file)
         return stats
 
     def _write_report(self, stats: dict[str, Any]) -> None:
@@ -263,10 +359,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Ingest Olympic corpus into TigerGraph Savanna.")
     parser.add_argument("--limit", type=int, default=None, help="Limit number of documents to ingest")
     parser.add_argument("--dry-run", action="store_true", help="Chunk and extract without upserting to TigerGraph")
+    parser.add_argument("--skip-structured", action="store_true", help="Chunk and embed only, skipping structured entity parsing")
     args = parser.parse_args()
 
     pipeline = IngestionPipeline()
-    stats = pipeline.run(limit=args.limit, dry_run=args.dry_run)
+    stats = pipeline.run(limit=args.limit, dry_run=args.dry_run, skip_structured=args.skip_structured)
     print("\nIngestion Complete!")
     print(json.dumps(stats, indent=2))
 

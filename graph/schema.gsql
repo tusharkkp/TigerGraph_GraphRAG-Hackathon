@@ -28,7 +28,8 @@ CREATE SCHEMA_CHANGE JOB add_graphrag_schema {
         text STRING,
         approx_tokens INT,
         epoch_added DATETIME,
-        embedding LIST<DOUBLE>
+        embedding LIST<DOUBLE>,
+        vec_emb VECTOR ATTRIBUTE(DIMENSION=768, METRIC="COSINE")
     ) WITH STATS="OUTDEGREE_BY_EDGETYPE", PRIMARY_ID_AS_ATTRIBUTE="true";
 
     // Entities extracted from the corpus
