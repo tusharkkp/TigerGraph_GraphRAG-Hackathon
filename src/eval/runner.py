@@ -24,6 +24,7 @@ from src.eval.judge import TwoStageJudge
 from src.eval.retrieval_metrics import evaluate_retrieval
 from src.pipelines.p1_vector_rag import VectorRAGPipeline
 from src.pipelines.p2_graphrag import GraphRAGPipeline
+from src.pipelines.p3_agentic import AgenticGraphRAGPipeline
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -41,6 +42,7 @@ class BenchmarkRunner:
         self.judge = judge or TwoStageJudge()
         self.p1 = VectorRAGPipeline()
         self.p2 = GraphRAGPipeline()
+        self.p3 = AgenticGraphRAGPipeline()
 
     def load_questions(self, split: str) -> list[Question]:
         """Load questions for the requested split."""
@@ -112,8 +114,17 @@ class BenchmarkRunner:
         if limit:
             questions = questions[:limit]
 
-        pipeline_inst = self.p1 if pipeline_name == "p1" else self.p2
-        pipe_key = "rag" if pipeline_name == "p1" else "graphrag"
+        if pipeline_name == "p1":
+            pipeline_inst = self.p1
+            pipe_key = "rag"
+        elif pipeline_name == "p2":
+            pipeline_inst = self.p2
+            pipe_key = "graphrag"
+        elif pipeline_name == "p3":
+            pipeline_inst = self.p3
+            pipe_key = "agentic"
+        else:
+            raise ValueError(f"Unknown pipeline: {pipeline_name}")
 
         PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
         checkpoint_file = PROCESSED_DIR / f"eval_{pipeline_name}_{split}.jsonl"
@@ -312,7 +323,7 @@ def main() -> None:
 
     runner = BenchmarkRunner()
 
-    pipelines_to_run = ["p1", "p2"] if args.pipeline == "all" else [args.pipeline]
+    pipelines_to_run = ["p1", "p2", "p3"] if args.pipeline == "all" else [args.pipeline]
 
     questions = runner.load_questions(args.split)
     count = min(len(questions), args.limit) if args.limit else len(questions)

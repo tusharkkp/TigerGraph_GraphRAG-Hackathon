@@ -134,11 +134,12 @@ class AnswerGenerator:
         for cid in parsed.cited_chunk_ids:
             chunk = chunk_by_id.get(cid)
             if chunk:
+                snippet = chunk.get("text", "").strip()[:150]
                 citations.append(
                     Citation(
                         chunk_id=cid,
                         doc_id=chunk.get("doc_id", cid.split("_chunk_")[0] if "_chunk_" in cid else cid),
-                        quote=None,
+                        quote=snippet if snippet else "Grounding text passage",
                         entity_ids=[],
                     )
                 )
