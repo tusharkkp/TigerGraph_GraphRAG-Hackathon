@@ -1,0 +1,57 @@
+// Aggregate_Events query for TigerGraph Savanna
+// Computes grouping and aggregations over Event vertices (count, max, sum)
+
+CREATE OR REPLACE QUERY Aggregate_Events(
+  STRING sport_name = "",
+  INT year_val = 0,
+  STRING season_val = "",
+  STRING gender_val = "",
+  STRING group_by_field = "sport",
+  STRING metric_type = "count",
+  INT limit_k = 10
+) FOR GRAPH GraphRAG SYNTAX v3 {
+  MapAccum<STRING, SumAccum<INT>> @@group_counts;
+  MapAccum<STRING, MaxAccum<INT>> @@group_max;
+  MapAccum<STRING, SumAccum<INT>> @@group_sum;
+
+  AllEvents = {Event.*};
+  Filtered = SELECT e FROM AllEvents:e
+    WHERE (year_val == 0 OR e.year == year_val)
+      AND (season_val == "" OR e.season == season_val)
+      AND (gender_val == "" OR e.gender == gender_val);
+
+  IF sport_name != "" THEN
+    Filtered = SELECT e FROM Filtered:e -(BELONGS_TO_SPORT:b)- Sport:s
+      WHERE lower(s.name) == lower(sport_name);
+  END;
+
+  IF group_by_field == "gender" THEN
+    Filtered = SELECT e FROM Filtered:e
+      ACCUM
+        @@group_counts += (e.gender -> 1),
+        @@group_max += (e.gender -> e.competitors),
+        @@group_sum += (e.gender -> e.competitors);
+  ELSE IF group_by_field == "year" THEN
+    Filtered = SELECT e FROM Filtered:e
+      ACCUM
+        STRING y_str = to_string(e.year),
+        @@group_counts += (y_str -> 1),
+        @@group_max += (y_str -> e.competitors),
+        @@group_sum += (y_str -> e.competitors);
+  ELSE
+    // Default group by event or sport
+    Filtered = SELECT e FROM Filtered:e
+      ACCUM
+        @@group_counts += (e.name -> 1),
+        @@group_max += (e.name -> e.competitors),
+        @@group_sum += (e.name -> e.competitors);
+  END;
+
+  IF metric_type == "max_competitors" THEN
+    PRINT @@group_max;
+  ELSE IF metric_type == "sum_competitors" THEN
+    PRINT @@group_sum;
+  ELSE
+    PRINT @@group_counts;
+  END;
+}

@@ -1,0 +1,49 @@
+// Medal_Table query for TigerGraph Savanna
+// Computes medal counts (Gold, Silver, Bronze, Total) and retrieves events for a Country or Athlete
+
+CREATE OR REPLACE QUERY Medal_Table(
+  STRING entity_id,
+  STRING entity_type = "Country",
+  INT year_val = 0,
+  STRING sport_name = ""
+) FOR GRAPH GraphRAG SYNTAX v3 {
+  SumAccum<INT> @@gold_count;
+  SumAccum<INT> @@silver_count;
+  SumAccum<INT> @@bronze_count;
+  SumAccum<INT> @@total_medals;
+
+  IF entity_type == "Country" THEN
+    TargetCountry = {Country.*};
+    TargetCountry = SELECT c FROM TargetCountry:c WHERE c.country_id == entity_id;
+    Athletes = SELECT a FROM TargetCountry:c -(REPRESENTS)- Athlete:a;
+    MedalEvents = SELECT e FROM Athletes:a -(MEDALIST:m)- Event:e
+      WHERE (year_val == 0 OR e.year == year_val)
+      ACCUM
+        IF m.medal == "Gold" THEN @@gold_count += 1
+        ELSE IF m.medal == "Silver" THEN @@silver_count += 1
+        ELSE IF m.medal == "Bronze" THEN @@bronze_count += 1
+        END,
+        @@total_medals += 1;
+    Docs = SELECT d FROM MedalEvents:e -(DESCRIBES_EVENT:de)- Document:d;
+    PRINT TargetCountry[TargetCountry.country_id, TargetCountry.name, TargetCountry.noc];
+    PRINT @@gold_count, @@silver_count, @@bronze_count, @@total_medals;
+    PRINT MedalEvents[MedalEvents.event_id, MedalEvents.name, MedalEvents.year, MedalEvents.season];
+    PRINT Docs[Docs.doc_id, Docs.title];
+  ELSE
+    TargetAthlete = {Athlete.*};
+    TargetAthlete = SELECT a FROM TargetAthlete:a WHERE a.athlete_id == entity_id;
+    MedalEvents = SELECT e FROM TargetAthlete:a -(MEDALIST:m)- Event:e
+      WHERE (year_val == 0 OR e.year == year_val)
+      ACCUM
+        IF m.medal == "Gold" THEN @@gold_count += 1
+        ELSE IF m.medal == "Silver" THEN @@silver_count += 1
+        ELSE IF m.medal == "Bronze" THEN @@bronze_count += 1
+        END,
+        @@total_medals += 1;
+    Docs = SELECT d FROM MedalEvents:e -(DESCRIBES_EVENT:de)- Document:d;
+    PRINT TargetAthlete[TargetAthlete.athlete_id, TargetAthlete.name, TargetAthlete.normalized_name];
+    PRINT @@gold_count, @@silver_count, @@bronze_count, @@total_medals;
+    PRINT MedalEvents[MedalEvents.event_id, MedalEvents.name, MedalEvents.year, MedalEvents.season];
+    PRINT Docs[Docs.doc_id, Docs.title];
+  END;
+}

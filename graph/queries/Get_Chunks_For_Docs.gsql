@@ -1,0 +1,9 @@
+// Get_Chunks_For_Docs query for TigerGraph Savanna
+// Retrieves all text chunks belonging to a set of Document vertices for citation generation
+
+CREATE OR REPLACE QUERY Get_Chunks_For_Docs(SET<STRING> doc_ids) FOR GRAPH GraphRAG SYNTAX v3 {
+  TargetDocs = {Document.*};
+  TargetDocs = SELECT d FROM TargetDocs:d WHERE d.doc_id IN doc_ids;
+  Chunks = SELECT c FROM TargetDocs:d -(HAS_CHUNK:h)- DocumentChunk:c;
+  PRINT Chunks[Chunks.chunk_id, Chunks.chunk_index, Chunks.text, Chunks.approx_tokens];
+}

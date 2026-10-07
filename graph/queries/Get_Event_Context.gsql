@@ -1,0 +1,19 @@
+// Get_Event_Context query for TigerGraph Savanna
+// Retrieves 1-hop event facts (medals, venue, sport, games) in a single GSQL call
+
+CREATE OR REPLACE QUERY Get_Event_Context(SET<STRING> doc_ids) FOR GRAPH GraphRAG SYNTAX v3 {
+  TargetDocs = {Document.*};
+  TargetDocs = SELECT d FROM TargetDocs:d WHERE d.doc_id IN doc_ids;
+  Events = SELECT e FROM TargetDocs:d -(DESCRIBES_EVENT:e)-> Event:e;
+  Medalists = SELECT a FROM Events:e -(MEDALIST:m)-> Athlete:a;
+  Venues = SELECT v FROM Events:e -(HELD_AT:h)-> Venue:v;
+  Sports = SELECT s FROM Events:e -(BELONGS_TO_SPORT:b)-> Sport:s;
+  GamesV = SELECT g FROM Events:e -(PART_OF_GAMES:p)-> Games:g;
+
+  PRINT TargetDocs[TargetDocs.title];
+  PRINT Events[Events.name, Events.year, Events.season, Events.gender, Events.competitors, Events.nations, Events.winning_value, Events.start_date, Events.end_date];
+  PRINT Medalists[Medalists.name];
+  PRINT Venues[Venues.name];
+  PRINT Sports[Sports.name];
+  PRINT GamesV[GamesV.year, GamesV.season, GamesV.city];
+}

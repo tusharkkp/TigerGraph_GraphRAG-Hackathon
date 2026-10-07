@@ -1,0 +1,24 @@
+// Event_Details query for TigerGraph Savanna
+// Returns comprehensive metadata, medalists, venue, sport, and adjacent editions for an event
+
+CREATE OR REPLACE QUERY Event_Details(STRING event_id) FOR GRAPH GraphRAG SYNTAX v3 {
+  Ev = {Event.*};
+  Ev = SELECT e FROM Ev:e WHERE e.event_id == event_id;
+  
+  Docs = SELECT d FROM Ev:e -(DESCRIBES_EVENT:de)- Document:d;
+  Medalists = SELECT a FROM Ev:e -(MEDALIST:m)- Athlete:a;
+  Venues = SELECT v FROM Ev:e -(HELD_AT:h)- Venue:v;
+  Sports = SELECT s FROM Ev:e -(BELONGS_TO_SPORT:b)- Sport:s;
+  GamesV = SELECT g FROM Ev:e -(PART_OF_GAMES:p)- Games:g;
+  PrevE = SELECT pe FROM Ev:e -(PREVIOUS_EDITION:pe_edge)- Event:pe;
+  NextE = SELECT ne FROM Ev:e -(NEXT_EDITION:ne_edge)- Event:ne;
+
+  PRINT Ev[Ev.event_id, Ev.name, Ev.year, Ev.season, Ev.gender, Ev.competitors, Ev.nations, Ev.winning_value, Ev.start_date, Ev.end_date];
+  PRINT Docs[Docs.doc_id, Docs.title];
+  PRINT Medalists[Medalists.athlete_id, Medalists.name, Medalists.normalized_name];
+  PRINT Venues[Venues.venue_id, Venues.name];
+  PRINT Sports[Sports.sport_id, Sports.name];
+  PRINT GamesV[GamesV.games_id, GamesV.year, GamesV.season, GamesV.city];
+  PRINT PrevE[PrevE.event_id, PrevE.name, PrevE.year];
+  PRINT NextE[NextE.event_id, NextE.name, NextE.year];
+}

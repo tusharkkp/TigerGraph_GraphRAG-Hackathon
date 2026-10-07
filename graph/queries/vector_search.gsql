@@ -1,0 +1,11 @@
+// Content_Similarity_Vector_Search for TigerGraph Savanna 4.2.5
+// Uses native HNSW index search with SYNTAX v3
+
+CREATE OR REPLACE QUERY Content_Similarity_Vector_Search(LIST<FLOAT> query_vec, INT top_k = 10) FOR GRAPH GraphRAG SYNTAX v3 {
+  MapAccum<VERTEX<DocumentChunk>, FLOAT> @@distances;
+  
+  // High-performance native HNSW vector index search
+  v = vectorSearch({DocumentChunk.vec_emb}, query_vec, top_k, { distance_map: @@distances });
+  
+  PRINT v[v.chunk_index, v.text, v.approx_tokens], @@distances;
+}
