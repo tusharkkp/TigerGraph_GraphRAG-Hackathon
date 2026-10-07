@@ -1,5 +1,24 @@
 # Progress Log
 
+## 2026-10-07 — Current state
+
+### Done
+- [x] Full corpus ingested (on secondary machine): 2,951 Document, 13,873 DocumentChunk with 768-d bge-base vectors
+- [x] Structured layer: 2,187 Event, 6,220 Athlete, 133 Country, 314 Venue, 42 Sport, 21 Games; 8,415 MEDALIST, 1,383 PREVIOUS/NEXT_EDITION
+- [x] Event layer rebuilt with sport-aware, plus-preserving IDs (no collisions)
+- [x] All 9 GSQL tools installed (fixed V2 edge-direction syntax + PRINT LIMIT errors in 5 queries)
+- [x] Runner import bug fixed; stale 55-doc val checkpoints removed
+- [x] Deterministic agentic parts (EntityLinker, EvidenceEvaluator, FakeOrchestrator) + 7 behaviour tests passing
+
+### In Progress
+- [ ] P1 / P2 full 100-question baselines (`--split all100`)
+
+### Next
+- [ ] P3 live orchestrator + pipeline (LLM planner → GSQL tools, ≤3 LLM calls/q)
+- [ ] 3-way benchmark, hidden-50 export + validation, README / demo
+
+---
+
 ## 2026-10-01
 
 ### Done
