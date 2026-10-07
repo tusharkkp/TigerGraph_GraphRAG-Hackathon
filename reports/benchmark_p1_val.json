@@ -1,23 +1,24 @@
 {
   "pipeline": "p1",
   "split": "val",
-  "total_questions": 3,
-  "accuracy": 0.0,
-  "stage1_match_rate": 0.0,
-  "mean_latency_ms": 4930.3,
-  "total_tokens": 12296,
-  "avg_tokens_per_q": 4098.7,
-  "recall@1": 0.0,
-  "recall@5": 0.0,
-  "mrr": 0.0,
+  "embedding_model": "BAAI/bge-base-en-v1.5",
+  "total_questions": 2,
+  "accuracy": 50.0,
+  "stage1_match_rate": 50.0,
+  "mean_latency_ms": 20460,
+  "total_tokens": 6543,
+  "avg_tokens_per_q": 3271.5,
+  "recall@1": 5.0,
+  "recall@5": 70.0,
+  "mrr": 0.6,
   "by_qtype": {
     "aggregation": {
       "total": 1,
       "pass": 0
     },
     "multi_hop": {
-      "total": 2,
-      "pass": 0
+      "total": 1,
+      "pass": 1
     }
   }
 }
