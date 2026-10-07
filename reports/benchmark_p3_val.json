@@ -1,0 +1,36 @@
+{
+  "pipeline": "p3",
+  "split": "val",
+  "embedding_model": "BAAI/bge-base-en-v1.5",
+  "total_questions": 20,
+  "accuracy": 55.00000000000001,
+  "stage1_match_rate": 50.0,
+  "mean_latency_ms": 16627.5,
+  "total_tokens": 179278,
+  "avg_tokens_per_q": 8963.9,
+  "recall@1": 12.6,
+  "recall@5": 39.5,
+  "mrr": 0.471,
+  "by_qtype": {
+    "aggregation": {
+      "total": 4,
+      "pass": 2
+    },
+    "multi_hop": {
+      "total": 6,
+      "pass": 1
+    },
+    "lookup": {
+      "total": 4,
+      "pass": 4
+    },
+    "temporal": {
+      "total": 4,
+      "pass": 3
+    },
+    "superlative": {
+      "total": 2,
+      "pass": 1
+    }
+  }
+}

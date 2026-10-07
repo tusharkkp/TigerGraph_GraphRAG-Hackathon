@@ -4,31 +4,31 @@
 roles:
   # Used by all three pipelines for final answer generation
   answer:
-    model: "gemini-3.1-flash-lite-preview"
+    model: "gemini-3.5-flash-lite"
     temperature: 0.0
     max_output_tokens: 2048
 
   # Used by the agentic orchestrator for planning
   orchestrator:
-    model: "gemini-3.1-flash-lite-preview"
+    model: "gemini-3.5-flash-lite"
     temperature: 0.0
     max_output_tokens: 1024
 
   # Used by specialised agents (entity linker, evidence evaluator, etc.)
   agent:
-    model: "gemini-3.1-flash-lite-preview"
+    model: "gemini-3.5-flash-lite"
     temperature: 0.0
     max_output_tokens: 1024
 
   # Used by the evaluation judge — robust, high-RPM, reliable structured evaluation
   judge:
-    model: "gemini-3.1-flash-lite-preview"
+    model: "gemini-3.5-flash-lite"
     temperature: 0.0
     max_output_tokens: 512
 
   # Used for entity/relation extraction during ingestion
   extract:
-    model: "gemini-3.1-flash-lite-preview"
+    model: "gemini-3.5-flash-lite"
     temperature: 0.0
     max_output_tokens: 4096
 

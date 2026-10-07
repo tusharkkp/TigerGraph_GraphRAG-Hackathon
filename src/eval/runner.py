@@ -205,7 +205,7 @@ class BenchmarkRunner:
                 })
 
             # Small delay to ensure rate limits are respected
-            time.sleep(1.0)
+            time.sleep(3.5)
 
         # If hidden, write submission file conforming to docs/round_1.txt
         if is_hidden:

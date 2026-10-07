@@ -15,15 +15,25 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import sys
 import time
 from pathlib import Path
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
 
 from src.config import PROJECT_ROOT, REPORTS_DIR
 from src.contracts import PipelineResult, Question
 from src.pipelines.p1_vector_rag import VectorRAGPipeline
 from src.pipelines.p2_graphrag import GraphRAGPipeline
 from src.pipelines.p3_agentic import AgenticGraphRAGPipeline
-import scripts.validate_submission as validator
+import sys
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+try:
+    import scripts.validate_submission as validator
+except ImportError:
+    import validate_submission as validator
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -93,7 +103,7 @@ def export_pipeline_submission(
             f.write(json.dumps(rec) + "\n")
 
         existing[q.qid] = rec
-        time.sleep(1.0)
+        time.sleep(3.5)
 
     logger.info("Completed %s export to %s (%d records)", pipeline_key, out_file, len(existing))
     return out_file

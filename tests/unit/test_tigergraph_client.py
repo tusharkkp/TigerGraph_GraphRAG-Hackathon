@@ -115,11 +115,11 @@ class TestTigerGraphClient:
         ]
         mock_conn.getToken.return_value = ("refreshed_token", 0)
 
-        settings = TigerGraphSettings(tg_host="https://mock.tigergraph.com", tg_secret="configured_secret")
+        settings = TigerGraphSettings(tg_host="https://mock.tigergraph.com", tg_secret="example_mock_secret")
         client = TigerGraphClient(conn=mock_conn, settings=settings)
         count = client.get_vertex_count("Document")
 
         assert count == 100
         mock_conn.createSecret.assert_not_called()
-        mock_conn.getToken.assert_called_once_with("configured_secret")
+        mock_conn.getToken.assert_called_once_with("example_mock_secret")
         assert mock_conn.apiToken == "refreshed_token"
