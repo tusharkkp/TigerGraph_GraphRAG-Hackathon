@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agentic GraphRAG — TigerGraph Savanna Olympic Intelligence</title>
+  <meta name="description" content="Production Multi-Agent GraphRAG platform powered by TigerGraph Savanna HNSW and Parameterized GSQL Queries.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <!-- Ambient background glow layers -->
+  <div class="glow-bg top-glow"></div>
+  <div class="glow-bg bottom-glow"></div>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+            <polyline points="2 17 12 22 22 17"></polyline>
+            <polyline points="2 12 12 17 22 12"></polyline>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">Agentic GraphRAG</h1>
+          <p class="brand-subtitle">TigerGraph Savanna &times; Gemini Multi-Agent System</p>
+        </div>
+      </div>
+
+      <div class="system-status">
+        <div class="status-badge" id="tg-status">
+          <span class="status-dot green"></span>
+          <span>TigerGraph Savanna: <strong>GraphRAG</strong></span>
+        </div>
+        <div class="status-badge">
+          <span class="status-dot blue"></span>
+          <span>Embeddings: <strong>bge-base-en-v1.5 (768d)</strong></span>
+        </div>
+        <div class="status-badge">
+          <span class="status-dot purple"></span>
+          <span>Quota Guard: <strong>&le; 3 LLM Calls/Q</strong></span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="nav-tabs">
+    <div class="tabs-container">
+      <button class="tab-btn active" data-tab="playground">
+        <span class="tab-icon">⚡</span> Query Playground
+      </button>
+      <button class="tab-btn" data-tab="benchmarks">
+        <span class="tab-icon">📊</span> Benchmark Hub (P1 vs P2 vs P3)
+      </button>
+      <button class="tab-btn" data-tab="graph">
+        <span class="tab-icon">🕸️</span> Graph Topology & Metrics
+      </button>
+      <button class="tab-btn" data-tab="tools">
+        <span class="tab-icon">🛠️</span> Parameterized GSQL Tools
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="main-container">
+
+    <!-- TAB 1: Query Playground -->
+    <section id="tab-playground" class="tab-content active">
+      <!-- Live Metrics Bar -->
+      <div class="stats-ribbon" id="graph-stats-ribbon">
+        <div class="stat-pill"><span class="pill-label">Documents</span><span class="pill-val" id="stat-docs">2,951</span></div>
+        <div class="stat-pill"><span class="pill-label">Chunks</span><span class="pill-val" id="stat-chunks">13,873</span></div>
+        <div class="stat-pill highlight"><span class="pill-label">Events</span><span class="pill-val" id="stat-events">2,187</span></div>
+        <div class="stat-pill"><span class="pill-label">Athletes</span><span class="pill-val" id="stat-athletes">6,220</span></div>
+        <div class="stat-pill"><span class="pill-label">Countries</span><span class="pill-val" id="stat-countries">133</span></div>
+        <div class="stat-pill"><span class="pill-label">Venues</span><span class="pill-val" id="stat-venues">314</span></div>
+        <div class="stat-pill"><span class="pill-label">Sports</span><span class="pill-val" id="stat-sports">42</span></div>
+      </div>
+
+      <!-- Playground Input Box -->
+      <div class="glass-card query-card">
+        <div class="card-header">
+          <div class="pipeline-selector">
+            <span class="selector-label">Architecture Pipeline:</span>
+            <div class="pill-group" id="pipeline-selector">
+              <button class="pipeline-pill active" data-pipeline="p3">
+                <span class="pill-badge">P3</span>
+                <span>Agentic GraphRAG</span>
+                <span class="pill-chip green">Hybrid Multi-Agent</span>
+              </button>
+              <button class="pipeline-pill" data-pipeline="p2">
+                <span class="pill-badge">P2</span>
+                <span>GraphRAG</span>
+                <span class="pill-chip blue">1-Hop Traversal</span>
+              </button>
+              <button class="pipeline-pill" data-pipeline="p1">
+                <span class="pill-badge">P1</span>
+                <span>Vector RAG</span>
+                <span class="pill-chip orange">Native HNSW</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="search-section">
+          <div class="input-wrap">
+            <textarea id="question-input" rows="2" placeholder="Ask any question about the Olympic Games (e.g. aggregations, medalists, previous editions, superlatives)..."></textarea>
+            <button id="run-btn" class="glow-button">
+              <span class="btn-text">Execute QA</span>
+              <span class="btn-icon">➜</span>
+            </button>
+          </div>
+
+          <!-- Sample Question Chips -->
+          <div class="sample-chips-container">
+            <span class="chips-title">Sample Prompts:</span>
+            <div class="chips-list" id="sample-chips">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result Card -->
+      <div class="glass-card result-card" id="result-card" style="display: none;">
+        <!-- Loading Indicator -->
+        <div class="loading-state" id="query-loader" style="display: none;">
+          <div class="quantum-spinner"></div>
+          <p class="loader-text">Multi-Agent Orchestrator executing parameterized graph queries...</p>
+        </div>
+
+        <!-- Content -->
+        <div id="result-content">
+          <div class="result-header">
+            <div class="result-title-group">
+              <h3 class="result-title">System Answer</h3>
+              <span class="pipeline-tag" id="res-pipeline-tag">P3 Agentic</span>
+              <span class="stop-tag" id="res-stop-tag">SUFFICIENCY_REACHED</span>
+            </div>
+            <div class="telemetry-bar">
+              <span class="telemetry-item">⏱️ Latency: <strong id="res-latency">1,420 ms</strong></span>
+              <span class="telemetry-item">🎟️ Tokens: <strong id="res-tokens">2,840</strong></span>
+              <span class="telemetry-item">⚡ Strategy Changed: <strong id="res-strat-changed">False</strong></span>
+            </div>
+          </div>
+
+          <!-- Answer Box -->
+          <div class="answer-box">
+            <div class="answer-text" id="res-answer">Usain Bolt</div>
+            <button class="copy-btn" id="copy-btn" title="Copy answer">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Multi-Agent Trace Section -->
+          <div class="section-container" id="trace-container">
+            <h4 class="section-heading">
+              <span>Agentic Execution Trace</span>
+              <span class="heading-badge" id="trace-step-count">2 steps</span>
+            </h4>
+            <div class="trace-timeline" id="trace-list">
+              <!-- Dynamically populated trace steps -->
+            </div>
+          </div>
+
+          <!-- Citations & Provenance -->
+          <div class="section-container" id="citations-container">
+            <h4 class="section-heading">
+              <span>Grounded Citations & Provenance</span>
+              <span class="heading-badge" id="citation-count">1 source</span>
+            </h4>
+            <div class="citations-grid" id="citations-list">
+              <!-- Dynamically populated citations -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: Benchmarks -->
+    <section id="tab-benchmarks" class="tab-content">
+      <div class="glass-card">
+        <div class="card-header">
+          <h2 class="card-title">Comparative Benchmark Leaderboard</h2>
+          <p class="card-subtitle">Rigorous evaluation on 100 questions across All100 (Dev 60 + Val 20 + Test 20)</p>
+        </div>
+
+        <div class="benchmark-grid">
+          <!-- P1 Card -->
+          <div class="benchmark-summary-card">
+            <div class="card-top">
+              <span class="p-badge orange">P1</span>
+              <h3>Vector RAG</h3>
+              <p class="model-sub">BAAI/bge-base-en-v1.5 + HNSW</p>
+            </div>
+            <div class="score-display">
+              <div class="main-score orange-glow" id="p1-acc">60.0%</div>
+              <div class="score-label">Overall Accuracy</div>
+            </div>
+            <div class="metrics-list">
+              <div class="metric-row"><span>Recall@5</span><strong id="p1-recall5">62.6%</strong></div>
+              <div class="metric-row"><span>MRR</span><strong id="p1-mrr">0.75</strong></div>
+              <div class="metric-row"><span>Mean Latency</span><strong id="p1-lat">9.8s</strong></div>
+              <div class="metric-row"><span>Avg Tokens/Q</span><strong id="p1-tok">2,941</strong></div>
+            </div>
+          </div>
+
+          <!-- P2 Card -->
+          <div class="benchmark-summary-card">
+            <div class="card-top">
+              <span class="p-badge blue">P2</span>
+              <h3>GraphRAG</h3>
+              <p class="model-sub">1-Hop Traversal + Vector</p>
+            </div>
+            <div class="score-display">
+              <div class="main-score blue-glow" id="p2-acc">60.0%</div>
+              <div class="score-label">Overall Accuracy</div>
+            </div>
+            <div class="metrics-list">
+              <div class="metric-row"><span>Recall@5</span><strong id="p2-recall5">62.6%</strong></div>
+              <div class="metric-row"><span>MRR</span><strong id="p2-mrr">0.75</strong></div>
+              <div class="metric-row"><span>Mean Latency</span><strong id="p2-lat">9.0s</strong></div>
+              <div class="metric-row"><span>Avg Tokens/Q</span><strong id="p2-tok">3,288</strong></div>
+            </div>
+          </div>
+
+          <!-- P3 Card -->
+          <div class="benchmark-summary-card winner-card">
+            <div class="winner-ribbon">⭐ Highest Accuracy</div>
+            <div class="card-top">
+              <span class="p-badge green">P3</span>
+              <h3>Agentic GraphRAG</h3>
+              <p class="model-sub">Multi-Agent + Parameterized GSQL</p>
+            </div>
+            <div class="score-display">
+              <div class="main-score green-glow" id="p3-acc">85.0%+</div>
+              <div class="score-label">Overall Accuracy</div>
+            </div>
+            <div class="metrics-list">
+              <div class="metric-row"><span>Aggregation Acc</span><strong class="highlight-text" id="p3-agg">100%</strong></div>
+              <div class="metric-row"><span>Temporal Acc</span><strong class="highlight-text" id="p3-temp">100%</strong></div>
+              <div class="metric-row"><span>LLM Call Clamp</span><strong>&le; 3 Calls</strong></div>
+              <div class="metric-row"><span>GSQL Injection</span><strong>0% (Param Only)</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Breakdown Table -->
+        <div class="taxonomy-table-wrap">
+          <h3 class="table-title">Performance by Question Taxonomy</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Total Qs</th>
+                <th>P1 (Vector RAG)</th>
+                <th>P2 (GraphRAG)</th>
+                <th>P3 (Agentic GraphRAG)</th>
+                <th>Agentic Lift</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Aggregation</strong> (e.g. &gt;X competitors)</td>
+                <td>21</td>
+                <td><span class="pill-chip red">0 / 21 (0%)</span></td>
+                <td><span class="pill-chip red">0 / 21 (0%)</span></td>
+                <td><span class="pill-chip green">21 / 21 (100%)</span></td>
+                <td><strong class="green-text">+100.0%</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Temporal</strong> (immediately before/after)</td>
+                <td>22</td>
+                <td><span class="pill-chip green">22 / 22 (100%)</span></td>
+                <td><span class="pill-chip green">22 / 22 (100%)</span></td>
+                <td><span class="pill-chip green">22 / 22 (100%)</span></td>
+                <td><strong class="green-text">Parity</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Lookup</strong> (nations / competitors)</td>
+                <td>19</td>
+                <td><span class="pill-chip green">19 / 19 (100%)</span></td>
+                <td><span class="pill-chip green">19 / 19 (100%)</span></td>
+                <td><span class="pill-chip green">19 / 19 (100%)</span></td>
+                <td><strong class="green-text">Parity</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Multi-Hop</strong> (venue + date + medal)</td>
+                <td>28</td>
+                <td><span class="pill-chip orange">13 / 28 (46.4%)</span></td>
+                <td><span class="pill-chip orange">13 / 28 (46.4%)</span></td>
+                <td><span class="pill-chip green">22 / 28 (78.6%)</span></td>
+                <td><strong class="green-text">+32.2%</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Superlative</strong> (highest competitors)</td>
+                <td>10</td>
+                <td><span class="pill-chip blue">6 / 10 (60.0%)</span></td>
+                <td><span class="pill-chip blue">6 / 10 (60.0%)</span></td>
+                <td><span class="pill-chip green">9 / 10 (90.0%)</span></td>
+                <td><strong class="green-text">+30.0%</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: Graph Topology -->
+    <section id="tab-graph" class="tab-content">
+      <div class="glass-card">
+        <div class="card-header">
+          <h2 class="card-title">TigerGraph Savanna Schema Topology</h2>
+          <p class="card-subtitle">GraphRAG Schema on Savanna Cloud with Native HNSW Index &amp; Directed Edges</p>
+        </div>
+
+        <div class="schema-grid">
+          <div class="schema-box">
+            <h4>Core Vertices</h4>
+            <div class="vertex-card">
+              <div class="v-header"><span class="v-dot event"></span><strong>Event</strong> (2,187)</div>
+              <p>name, year, season, gender, competitors, nations, winning_value</p>
+            </div>
+            <div class="vertex-card">
+              <div class="v-header"><span class="v-dot athlete"></span><strong>Athlete</strong> (6,220)</div>
+              <p>name, normalized_name, country_noc</p>
+            </div>
+            <div class="vertex-card">
+              <div class="v-header"><span class="v-dot doc"></span><strong>DocumentChunk</strong> (13,873)</div>
+              <p>text, approx_tokens, <strong>vec_emb (768d HNSW)</strong></p>
+            </div>
+            <div class="vertex-card">
+              <div class="v-header"><span class="v-dot venue"></span><strong>Venue</strong> (314) | <strong>Sport</strong> (42) | <strong>Country</strong> (133)</div>
+              <p>name, normalized_name, noc</p>
+            </div>
+          </div>
+
+          <div class="schema-box">
+            <h4>Relational Edges</h4>
+            <div class="edge-card">
+              <span class="edge-name">PREVIOUS_EDITION &amp; NEXT_EDITION</span>
+              <span class="edge-type directed">DIRECTED</span>
+              <p>Temporal chaining of Olympic event editions (e.g. 2016 &rarr; 2012)</p>
+            </div>
+            <div class="edge-card">
+              <span class="edge-name">MEDALIST</span>
+              <span class="edge-type undirected">UNDIRECTED</span>
+              <p>Connects Event to Athlete with medal type (Gold/Silver/Bronze) and noc</p>
+            </div>
+            <div class="edge-card">
+              <span class="edge-name">DESCRIBES_EVENT &amp; HAS_CHUNK</span>
+              <span class="edge-type mixed">PROVENANCE</span>
+              <p>Links text DocumentChunks to Events for exact citations</p>
+            </div>
+            <div class="edge-card">
+              <span class="edge-name">HELD_AT &amp; BELONGS_TO_SPORT</span>
+              <span class="edge-type undirected">UNDIRECTED</span>
+              <p>Entity relations for venue and sport filtering</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: Tools -->
+    <section id="tab-tools" class="tab-content">
+      <div class="glass-card">
+        <div class="card-header">
+          <h2 class="card-title">Parameterized GSQL Tool Playground</h2>
+          <p class="card-subtitle">Zero-LLM injection safety: execute pre-compiled Savanna queries directly</p>
+        </div>
+
+        <div class="tool-tester-grid">
+          <div class="tester-controls">
+            <label for="tool-select">Select GSQL Tool:</label>
+            <select id="tool-select" class="form-select">
+              <option value="Find_Events">Find_Events (filtered event search & count)</option>
+              <option value="Aggregate_Events">Aggregate_Events (group by & metric)</option>
+              <option value="Event_Details">Event_Details (full metadata & medalists)</option>
+              <option value="Navigate_Edition">Navigate_Edition (adjacent Olympic edition)</option>
+              <option value="Medal_Table">Medal_Table (country or athlete medals)</option>
+              <option value="Resolve_Entity">Resolve_Entity (name search)</option>
+              <option value="Vector_Chunk_Search">Vector_Chunk_Search (HNSW chunk search)</option>
+            </select>
+
+            <label for="tool-args-input">Arguments (JSON):</label>
+            <textarea id="tool-args-input" rows="8" class="form-textarea">{
+  "sport": "Biathlon",
+  "year": 2014,
+  "min_competitors": 69
+}</textarea>
+
+            <button id="exec-tool-btn" class="glow-button small">Execute Tool ➜</button>
+          </div>
+
+          <div class="tester-output">
+            <h4>Savanna Tool Response:</h4>
+            <pre id="tool-output-json">Click 'Execute Tool' to inspect raw output from TigerGraph Savanna.</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <p>TigerGraph GraphRAG Hackathon &copy; 2026. Built with TigerGraph Savanna, Google Gemini, and FastEmbed.</p>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
